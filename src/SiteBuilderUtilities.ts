@@ -11,7 +11,7 @@ export class Page {
     }
 
     private FindNewMatches() {
-        const matches = this.HTML.match("\${(\w+)}");
+        const matches = this.HTML.match(/\${(\w+)}/g);
         if (matches !== null) {
             matches.forEach(element => {
                 if (!this.MappedPlaceholders.includes(element)) {
@@ -22,36 +22,35 @@ export class Page {
     }
 
     public Replace(placeholder: string, value: string) {
-        if (this.MappedPlaceholders.includes(placeholder)) {
-            this.HTML.replace('${' + placeholder + '}', value);
+        const ph = '${' + placeholder + '}';
+        if (this.MappedPlaceholders.includes(ph)) {
+            this.HTML = this.HTML.replace(ph, value);
             const index = this.MappedPlaceholders.indexOf(placeholder, 0);
             if (index > -1) {
                 this.MappedPlaceholders.splice(index, 1);
             }
             this.FindNewMatches();
         } else {
-            throw new Error('Document does not contain definition of ' + placeholder);
+            console.error('Document does not contain definition of ' + placeholder);
+            // throw new Error();
         }
     }
 
     public FillReplace(placeholder: string, values: string[]) {
+        const ph = '${' + placeholder + '}';
         if (values.length !== 0) {
             for (let i = 0; i < values.length - 1; i++) {
-                this.Replace(placeholder, values[i] + '\n${' + placeholder + '}');
+                this.Replace(placeholder, values[i] + '\n' + ph);
             }
             this.Replace(placeholder, values[values.length - 1]);
-        }else{
-            this.Replace(placeholder, '');
+        } else {
+            this.HTML = this.HTML.replace(ph, '');
         }
     }
 
     public GetCompiledHTML(): string {
-        if (this.MappedPlaceholders.length > 0) {
-            throw new Error('Values remain unreplaced: ' + Map.length);
-        }
-        else {
-            return this.HTML;
-        }
+        console.log('Values remain unreplaced: ' + this.MappedPlaceholders.length);
+        return this.HTML;
     }
 
 }
