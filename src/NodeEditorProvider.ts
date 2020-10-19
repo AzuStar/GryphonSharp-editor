@@ -7,6 +7,15 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
     private context: vscode.ExtensionContext;
 
+    private static getNonce() {
+        let text = '';
+        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        for (let i = 0; i < 32; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+        return text;
+    }
+
     public static registerProvider(context: vscode.ExtensionContext): vscode.Disposable {
         const provider = new NodeEditorProvider(context);
         const providerRegistration = vscode.window.registerCustomEditorProvider('gsharp.nodeEditor', provider);
@@ -32,6 +41,7 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
     Main(webview: vscode.Webview, context: vscode.ExtensionContext): string {
         var scripts: string[] = [];
         var css: string[] = [];
+        const nonce = NodeEditorProvider.getNonce();
         fs.readdir(path.join(context.extensionPath, 'media', 'js'), (err, files) => {
             scripts = files;
         });
@@ -41,10 +51,16 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
         var pg = new Page(path.join(context.extensionPath, 'media', 'index.htm'));
         var arr: string[] = [];
         scripts.forEach(element => {
-            arr.push('<script nonce="${nonce}" src="${element}"></script>');
+            arr.push(`<script nonce="${nonce}" src="${element}"></script>`);
         });
-        pg.FillReplace('styleUris', arr);
-        return '<html></html>';
+        var cssarr: string[] = [];
+        css.forEach(element => {
+            cssarr.push(`<link href="${element}" rel="stylesheet" />`);
+        });
+        pg.FillReplace('scriptUris', arr);
+        pg.FillReplace('styleUris', cssarr);
+        return pg.GetCompiledHTML();
+
         // const scriptUri = webview.asWebviewUri(vscode.Uri.file(
         //     path.join(context.extensionPath, 'media', '')
         // ));
