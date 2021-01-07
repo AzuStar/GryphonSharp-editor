@@ -41,24 +41,30 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
     Main(webview: vscode.Webview, context: vscode.ExtensionContext): string {
         var scripts: string[] = [];
         var css: string[] = [];
+        var tsscripts: string[] = [];
         const nonce = NodeEditorProvider.getNonce();
-        fs.readdir(path.join(context.extensionPath, 'media', 'js'), (err, files) => {
-            scripts = files;
-        });
-        fs.readdir(path.join(context.extensionPath, 'media', 'css'), (err, files) => {
-            css = files;
-        });
+        scripts = fs.readdirSync(path.join(context.extensionPath, 'media', 'js'));
+        tsscripts = fs.readdirSync(path.join(context.extensionPath, 'out', 'media', 'js'));
+        css = fs.readdirSync(path.join(context.extensionPath, 'media', 'css'));
         var pg = new Page(path.join(context.extensionPath, 'media', 'index.htm'));
         var arr: string[] = [];
         scripts.forEach(element => {
-            arr.push(`<script nonce="${nonce}" src="${element}"></script>`);
+            if (element.split('.').pop() === 'js')
+                arr.push(`<script nonce="${nonce}" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'media', 'js', element))}"></script>`);
+        });
+        scripts.forEach(element => {
+            if (element.split('.').pop() === 'js')
+                arr.push(`<script nonce="${nonce}" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'media', 'js', element))}"></script>`);
         });
         var cssarr: string[] = [];
         css.forEach(element => {
-            cssarr.push(`<link href="${element}" rel="stylesheet" />`);
+            if (element.split('.').pop() === 'css')
+                cssarr.push(`<link href="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'media', 'css', element))}" rel="stylesheet" />`);
         });
         pg.FillReplace('scriptUris', arr);
         pg.FillReplace('styleUris', cssarr);
+        pg.Replace('nonce', nonce);
+        pg.Replace('cspSource', webview.cspSource);
         return pg.GetCompiledHTML();
 
         // const scriptUri = webview.asWebviewUri(vscode.Uri.file(

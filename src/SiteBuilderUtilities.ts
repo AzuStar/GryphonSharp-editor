@@ -24,8 +24,8 @@ export class Page {
     public Replace(placeholder: string, value: string) {
         const ph = '${' + placeholder + '}';
         if (this.MappedPlaceholders.includes(ph)) {
-            this.HTML = this.HTML.replace(ph, value);
-            const index = this.MappedPlaceholders.indexOf(placeholder, 0);
+            this.HTML = this.HTML.split(ph).join(value);
+            const index = this.MappedPlaceholders.indexOf(ph);
             if (index > -1) {
                 this.MappedPlaceholders.splice(index, 1);
             }

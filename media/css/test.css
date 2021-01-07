@@ -1,3 +1,17 @@
+body{
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color:rgb(216, 220, 221);
+    /* background-image: linear-gradient(rgba(255,255,255,0.2) 1.3px, transparent 2px),
+    linear-gradient(90deg, rgba(255,255,255,0.2) 1.3px, transparent 1px),
+    linear-gradient(rgba(255,255,255,0.1) 0.8px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.1) 0.8px, transparent 1px);
+    background-size:100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    background-position:-2px -2px, -2px -2px, -1px -1px, -1px -1px; */
+}
+
 .add-button{
-    border-radius: 2cm;
+    border-radius: 0cm;
+    background-color: black;
 }
