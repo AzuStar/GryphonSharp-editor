@@ -32,7 +32,6 @@ export class Page {
             this.FindNewMatches();
         } else {
             console.error('Document does not contain definition of ' + placeholder);
-            // throw new Error();
         }
     }
 
