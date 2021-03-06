@@ -1,6 +1,5 @@
-// const { default: Konva } = require("konva");
+import Konva from 'konva';
 
-console.log("Begin!");
 var width = window.innerWidth;
 var height = window.innerHeight;
 
@@ -9,8 +8,9 @@ var stage = new Konva.Stage({
     width: width,
     height: height,
     draggable: true,
-    drag
 });
+
+Konva.angleDeg = false;
 
 var layer = new Konva.Layer();
 stage.add(layer);
@@ -24,7 +24,7 @@ function GenerateNode(x, y) {
         y: y,
         width: 100,
         height: 100,
-        fill: 'ffffff',
+        fill: '#ff0000',
         cornerRadius: 5,
         draggable: true,
     });
@@ -51,7 +51,7 @@ stage.on('wheel', (e) => {
     };
 
     var newScale =
-        e.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+        e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
 
     stage.scale({ x: newScale, y: newScale });
 
