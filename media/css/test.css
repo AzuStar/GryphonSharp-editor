@@ -2,7 +2,7 @@ body{
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color:rgb(216, 220, 221);
+    background-color:rgba(0, 28, 104, 0.11);
     /* background-image: linear-gradient(rgba(255,255,255,0.2) 1.3px, transparent 2px),
     linear-gradient(90deg, rgba(255,255,255,0.2) 1.3px, transparent 1px),
     linear-gradient(rgba(255,255,255,0.1) 0.8px, transparent 1px),
