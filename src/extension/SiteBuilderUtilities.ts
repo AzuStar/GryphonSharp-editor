@@ -21,7 +21,7 @@ export class Page {
         }
     }
 
-    public Replace(placeholder: string, value: string) {
+    public replace(placeholder: string, value: string) {
         const ph = '${' + placeholder + '}';
         if (this.MappedPlaceholders.includes(ph)) {
             this.HTML = this.HTML.split(ph).join(value);
@@ -35,19 +35,19 @@ export class Page {
         }
     }
 
-    public FillReplace(placeholder: string, values: string[]) {
+    public fillReplace(placeholder: string, values: string[]) {
         const ph = '${' + placeholder + '}';
         if (values.length !== 0) {
             for (let i = 0; i < values.length - 1; i++) {
-                this.Replace(placeholder, values[i] + '\n' + ph);
+                this.replace(placeholder, values[i] + '\n' + ph);
             }
-            this.Replace(placeholder, values[values.length - 1]);
+            this.replace(placeholder, values[values.length - 1]);
         } else {
             this.HTML = this.HTML.replace(ph, '');
         }
     }
 
-    public GetCompiledHTML(): string {
+    public getCompiledHTML(): string {
         console.log('Values remain unreplaced: ' + this.MappedPlaceholders.length);
         return this.HTML;
     }

@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { Page } from './SiteBuilderUtilities';
 import * as fs from 'fs';
-import * as fse from 'fs-extra';
 
 export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
@@ -26,6 +25,8 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
     private constructor(context: vscode.ExtensionContext) {
         this.context = context;
+        this.scriptsPath = path.join(context.extensionPath, 'out', 'src', 'editor');
+        this.cssPath = path.join(context.extensionPath, 'media', 'css');
     }
 
     public async resolveCustomTextEditor(
@@ -34,7 +35,7 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
         token: vscode.CancellationToken): Promise<void> {
         webviewPanel.webview.options = {
             enableScripts: true,
-            localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'media')]
+            localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'media'), vscode.Uri.joinPath(this.context.extensionUri, 'out', 'src', 'editor')]
         };
 
         webviewPanel.webview.html = this.Main(webviewPanel.webview, this.context);
@@ -49,6 +50,10 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
             undefined, this.context.subscriptions);
     }
 
+    scriptsPath: string;
+    cssPath: string;
+
+
     Main(webview: vscode.Webview, context: vscode.ExtensionContext): string {
         var scripts: string[] = [];
         var css: string[] = [];
@@ -56,8 +61,8 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
         const nonce = NodeEditorProvider.getNonce();
 
         scriptlibs = fs.readdirSync(path.join(context.extensionPath, 'media', 'jslib'));
-        scripts = fs.readdirSync(path.join(context.extensionPath, 'media', 'js'));
-        css = fs.readdirSync(path.join(context.extensionPath, 'media', 'css'));
+        scripts = fs.readdirSync(this.scriptsPath);
+        css = fs.readdirSync(this.cssPath);
         var pg = new Page(path.join(context.extensionPath, 'media', 'index.htm'));
         var arr: string[] = [];
         var arrlibs: string[] = [];
@@ -69,22 +74,41 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
         });
 
         scripts.forEach(element => {
-            if (element.split('.').pop() === 'js')
-                arr.push(`<script nonce="${nonce}" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'media', 'js', element))}"></script>`);
+            if (element.split('.').pop() === 'js') {
+                var content: string, regex: RegExp, match, group;
+                content = fs.readFileSync(path.join(this.scriptsPath, element), 'utf-8');
+                content = content.replace(/([^\n]+\n){5}/m, "");
+                regex = new RegExp(/const (\w+) ?= ?__importDefault\(require\(\"(\w+)\"\)\);/gm);
+                match = content.match(regex);
+                if (match !== null) {
+                    match.forEach(element => {
+                        group = element.match(/const (\w+) ?= ?__importDefault\(require\(\"(\w+)\"\)\);/m);
+                        if (group !== null) {
+                            content = content.replace(new RegExp(group[1] + ".default", "g"), group[2]);
+                            content = content.replace(element, "");
+                        }
+                        content = content.replace(element, "");
+                    });
+
+                }
+                content = content.replace(/\/\/! *pars-ignore\n[^\n]+/gm, "");
+
+                arr.push(`<script nonce="${nonce} ">${content}</script>`);
+            }
         });
 
         css.forEach(element => {
             if (element.split('.').pop() === 'css')
                 cssarr.push(`<link href="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'media', 'css', element))}" rel="stylesheet" />`);
         });
-        pg.FillReplace('scriptUris', arr);
-        pg.FillReplace('styleUris', cssarr);
-        pg.FillReplace('scriptLibsUris', arrlibs);
-        pg.Replace('nonce', nonce);
-        pg.Replace('cspSource', webview.cspSource);
-        var page = pg.GetCompiledHTML();
+        pg.fillReplace('scriptUris', arr);
+        pg.fillReplace('styleUris', cssarr);
+        pg.fillReplace('scriptLibsUris', arrlibs);
+        pg.replace('nonce', nonce);
+        pg.replace('cspSource', webview.cspSource);
+        var page = pg.getCompiledHTML();
         fs.writeFile(path.join(context.extensionPath, 'index.htm'), page, () => { });
-        return pg.GetCompiledHTML();
+        return pg.getCompiledHTML();
 
     }
 
