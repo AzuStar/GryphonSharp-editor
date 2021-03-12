@@ -1,0 +1,17 @@
+ - node schema
+ > "node-{id}-nt-{nt}-af-{flags}-rf-{flags}"
+ - argument schema
+ > "node-{id}-cid-{id}"
+ - return schema
+ > "node-{id}-cid-{id}"
+
+'node' - (meta)
+{id} - id (value)
+'nt' - node type (meta)
+{nt} - node type (value)
+
+'af' - arguments flags (meta)
+'rf' - returns flags (meta)
+
+'cid' - connector id (meta)
+{flags} - flags (value)

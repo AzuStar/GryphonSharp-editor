@@ -21,6 +21,7 @@ const BODY_PANEL_OPACITY = 0.4;
 var width = window.innerWidth;
 var height = window.innerHeight;
 var stageLeftButton: boolean;
+var stageContextMenu: Konva.Group;
 // var 
 
 
@@ -39,7 +40,9 @@ stage.container().style.backgroundSize = "100px 100px, 100px 100px, 20px 20px, 2
 Konva.angleDeg = false;
 Konva.dragButtons = [0, 2];
 
-var layer = new Konva.Layer();
+var layer = new Konva.Layer({
+    existingNodesCount: 0,
+});
 stage.add(layer);
 
 class MethodSignature {
@@ -57,11 +60,17 @@ class ReturnSignature {
 }
 
 function createNode(x: number, y: number, signature: MethodSignature) {
+    var nodeid = "node-" + stage.getAttr("existingNodesCount");
+    var nodeFullId = nodeid + "-nt-0-af-0-rf-0";
+    layer.setAttr("existingNodesCount", layer.getAttr("existingNodesCount") + 1);
+
     var node = new Konva.Group({
+        id: nodeFullId,
         x: x,
         y: y,
         draggable: true,
-        signature: signature
+        connectorCount: 0,
+        signature: signature,
     });
 
     node.on('mousedown', (e) => {
@@ -117,9 +126,11 @@ function createNode(x: number, y: number, signature: MethodSignature) {
         var connectorCircle: Konva.Circle, yOffset = CONNECTOR_PAD_TOP, connectorText: Konva.Text;
         signature.args.forEach(element => {
             var connectorGroup = new Konva.Group({
+                id: nodeid + "-cid-" + node.getAttr("connectorCount"),
                 y: yOffset,
                 x: CONNECTOR_PAD_HORIZONTAL,
             });
+            node.setAttr("connectorCount", node.getAttr("connectorCount") + 1);
             connectorText = new Konva.Text({
                 // y: -(CONNECTOR_RADIUS + CONNECTOR_PAD_TOP)/2,
                 text: element.name,
@@ -157,9 +168,11 @@ function createNode(x: number, y: number, signature: MethodSignature) {
         var connectorCircle: Konva.Circle, yOffset = CONNECTOR_PAD_TOP, connectorText: Konva.Text;
         signature.returns.forEach(element => {
             var connectorGroup = new Konva.Group({
+                id: nodeid + "-cid-" + node.getAttr("connectorCount"),
                 y: yOffset,
                 x: PANEL_WIDTH - CONNECTOR_PAD_HORIZONTAL,
             });
+            node.setAttr("connectorCount", node.getAttr("connectorCount") + 1);
             connectorText = new Konva.Text({
                 // y: -(CONNECTOR_RADIUS + CONNECTOR_PAD_TOP)/2,
                 text: element.name,
@@ -190,13 +203,10 @@ function createNode(x: number, y: number, signature: MethodSignature) {
 
     // node.on();
 
-
     node.add(methodNamePanel);
     node.add(methodText);
     node.add(bodyGroup);
     bodyGroup.add(bodyPanel);
-
-
     return node;
 }
 
@@ -263,5 +273,10 @@ stage.on('dragmove', (e) => {
 });
 
 stage.on('click', (e) => {
-
+    var isRight = e.evt.button === 2;
+if(isRight){
+stageContextMenu = new Konva.Group({
+    
+});
+}
 });
