@@ -21,7 +21,7 @@ const BODY_PANEL_OPACITY = 0.4;
 var width = window.innerWidth;
 var height = window.innerHeight;
 var stageLeftButton: boolean;
-var stageContextMenu: Konva.Group;
+var stageBackgroundSizes: number[] = [100, 20];
 // var 
 
 
@@ -32,10 +32,14 @@ var stage = new Konva.Stage({
     draggable: true,
 });
 
+var stageContextMenu = new Konva.Group({
+
+});
+
+
 
 stage.container().style.backgroundImage = "linear-gradient(rgba(255,255,255,0.2) 1.3px, transparent 2px),linear-gradient(90deg, rgba(255,255,255,0.2) 1.3px, transparent 1px),linear-gradient(rgba(255,255,255,0.1) 0.8px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.1) 0.8px, transparent 1px)";
-stage.container().style.backgroundSize = "100px 100px, 100px 100px, 20px 20px, 20px 20px";
-// stage.container().style.backgroundPosition = "-2px -2px, -2px -2px, -1px -1px, -1px -1px";
+stage.container().style.backgroundSize = `${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px`;
 
 Konva.angleDeg = false;
 Konva.dragButtons = [0, 2];
@@ -235,6 +239,7 @@ var scaleBy = 1.03;
 stage.on('wheel', (e) => {
     e.evt.preventDefault();
     var oldScale = stage.scaleX();
+    // var oldBgScale = stageBackgroundSizes;
 
     var pointer = stage.getPointerPosition();
     if (pointer !== null) {
@@ -253,17 +258,23 @@ stage.on('wheel', (e) => {
             y: pointer.y - mousePointTo.y * newScale,
         };
         stage.position(newPos);
+
+        // stageBackgroundSizes[0] = 100 * newScale;
+        // stageBackgroundSizes[1] = 100 * newScale;
+
+        // stage.container().style.backgroundSize = `${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px`;
     }
     stage.batchDraw();
 });
 stage.on('contextmenu', (e) => {
-    // console.log("menu");
+    e.evt.preventDefault();
 });
 stage.on('mousedown', (e) => {
     stageLeftButton = e.evt.button === 0;
     stage.draggable(!stageLeftButton);
 });
 stage.on('dragmove', (e) => {
+    stageContextMenu.hide();
     if (!stageLeftButton) {
         const pointerpos = stage.pointerPos;
         if (pointerpos !== null)
@@ -274,9 +285,8 @@ stage.on('dragmove', (e) => {
 
 stage.on('click', (e) => {
     var isRight = e.evt.button === 2;
-if(isRight){
-stageContextMenu = new Konva.Group({
-    
-});
-}
+    if (isRight) {
+        console.log("menu");
+        
+    }
 });
