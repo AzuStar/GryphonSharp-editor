@@ -5,14 +5,14 @@
     <meta charset="UTF-8">
 
     <!--- Libs --->
-    <script nonce="fggynVCJ6jq835Q0hS74RDb4WZY1DPvi" src="vscode-webview-resource://95b5cad3-e929-4c86-aa6b-8fa3784b3a82/file///c%3A/Users/kilanth/Documents/.git/typescript/gryphonsharp-vscode/media/jslib/Konva.js"></script>
+    <script nonce="Efry143hcm1vxaR0p7zL7T18ahnFMv5u" src="vscode-webview-resource://f4161eb1-7c24-407d-a4fe-da6f2949cbb8/file///c%3A/Users/kilanth/Documents/.git/typescript/gryphonsharp-vscode/media/jslib/Konva.js"></script>
 
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; img-src vscode-webview-resource:; style-src vscode-webview-resource:; script-src 'nonce-fggynVCJ6jq835Q0hS74RDb4WZY1DPvi';">
+        content="default-src 'none'; img-src vscode-webview-resource:; style-src vscode-webview-resource:; script-src 'nonce-Efry143hcm1vxaR0p7zL7T18ahnFMv5u';">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="vscode-webview-resource://95b5cad3-e929-4c86-aa6b-8fa3784b3a82/file///c%3A/Users/kilanth/Documents/.git/typescript/gryphonsharp-vscode/media/css/test.css" rel="stylesheet" />
+    <link href="vscode-webview-resource://f4161eb1-7c24-407d-a4fe-da6f2949cbb8/file///c%3A/Users/kilanth/Documents/.git/typescript/gryphonsharp-vscode/media/css/test.css" rel="stylesheet" />
 
     <title>Cat Scratch</title>
 </head>
@@ -20,7 +20,7 @@
 <body>
     <div id="editor-main">
     </div>
-    <script nonce="fggynVCJ6jq835Q0hS74RDb4WZY1DPvi ">/* eslint-disable curly */
+    <script nonce="Efry143hcm1vxaR0p7zL7T18ahnFMv5u ">/* eslint-disable curly */
 /* eslint-disable eqeqeq */
 
 // @ts-ignore
@@ -40,6 +40,8 @@ const BODY_PANEL_OPACITY = 0.4;
 var width = window.innerWidth;
 var height = window.innerHeight;
 var stageLeftButton;
+var stageContextMenu;
+var stageBackgroundSizes = [100, 20];
 // var 
 var stage = new Konva.Stage({
     container: 'editor-main',
@@ -48,11 +50,13 @@ var stage = new Konva.Stage({
     draggable: true,
 });
 stage.container().style.backgroundImage = "linear-gradient(rgba(255,255,255,0.2) 1.3px, transparent 2px),linear-gradient(90deg, rgba(255,255,255,0.2) 1.3px, transparent 1px),linear-gradient(rgba(255,255,255,0.1) 0.8px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.1) 0.8px, transparent 1px)";
-stage.container().style.backgroundSize = "100px 100px, 100px 100px, 20px 20px, 20px 20px";
+stage.container().style.backgroundSize = `${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px`;
 // stage.container().style.backgroundPosition = "-2px -2px, -2px -2px, -1px -1px, -1px -1px";
 Konva.angleDeg = false;
 Konva.dragButtons = [0, 2];
-var layer = new Konva.Layer();
+var layer = new Konva.Layer({
+    existingNodesCount: 0,
+});
 stage.add(layer);
 class MethodSignature {
 }
@@ -61,11 +65,16 @@ class ArgumentSignature {
 class ReturnSignature {
 }
 function createNode(x, y, signature) {
+    var nodeid = "node-" + stage.getAttr("existingNodesCount");
+    var nodeFullId = nodeid + "-nt-0-af-0-rf-0";
+    layer.setAttr("existingNodesCount", layer.getAttr("existingNodesCount") + 1);
     var node = new Konva.Group({
+        id: nodeFullId,
         x: x,
         y: y,
         draggable: true,
-        signature: signature
+        connectorCount: 0,
+        signature: signature,
     });
     node.on('mousedown', (e) => {
         var left = e.evt.button === 0;
@@ -114,9 +123,11 @@ function createNode(x, y, signature) {
         var connectorCircle, yOffset = CONNECTOR_PAD_TOP, connectorText;
         signature.args.forEach(element => {
             var connectorGroup = new Konva.Group({
+                id: nodeid + "-cid-" + node.getAttr("connectorCount"),
                 y: yOffset,
                 x: CONNECTOR_PAD_HORIZONTAL,
             });
+            node.setAttr("connectorCount", node.getAttr("connectorCount") + 1);
             connectorText = new Konva.Text({
                 // y: -(CONNECTOR_RADIUS + CONNECTOR_PAD_TOP)/2,
                 text: element.name,
@@ -138,6 +149,8 @@ function createNode(x, y, signature) {
                 strokeWidth: 0.4,
             });
             yOffset += CONNECTOR_RADIUS * 2 + CONNECTOR_PAD_TOP;
+            connectorCircle.on('mousedown', (e) => {
+            });
             connectorGroup.add(connectorCircle);
             connectorGroup.add(connectorText);
             bodyGroup.add(connectorGroup);
@@ -150,9 +163,11 @@ function createNode(x, y, signature) {
         var connectorCircle, yOffset = CONNECTOR_PAD_TOP, connectorText;
         signature.returns.forEach(element => {
             var connectorGroup = new Konva.Group({
+                id: nodeid + "-cid-" + node.getAttr("connectorCount"),
                 y: yOffset,
                 x: PANEL_WIDTH - CONNECTOR_PAD_HORIZONTAL,
             });
+            node.setAttr("connectorCount", node.getAttr("connectorCount") + 1);
             connectorText = new Konva.Text({
                 // y: -(CONNECTOR_RADIUS + CONNECTOR_PAD_TOP)/2,
                 text: element.name,
@@ -208,6 +223,7 @@ var scaleBy = 1.03;
 stage.on('wheel', (e) => {
     e.evt.preventDefault();
     var oldScale = stage.scaleX();
+    var oldBgScale = stageBackgroundSizes;
     var pointer = stage.getPointerPosition();
     if (pointer !== null) {
         var mousePointTo = {
@@ -221,17 +237,21 @@ stage.on('wheel', (e) => {
             y: pointer.y - mousePointTo.y * newScale,
         };
         stage.position(newPos);
+        stageBackgroundSizes[0] = 100 * newScale;
+        // stageBackgroundSizes[1] = 100 * newScale;
+        stage.container().style.backgroundSize = `${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px`;
     }
     stage.batchDraw();
 });
 stage.on('contextmenu', (e) => {
-    // console.log("menu");
+    e.evt.preventDefault();
 });
 stage.on('mousedown', (e) => {
     stageLeftButton = e.evt.button === 0;
     stage.draggable(!stageLeftButton);
 });
 stage.on('dragmove', (e) => {
+    // stageContextMenu.destroy();
     if (!stageLeftButton) {
         const pointerpos = stage.pointerPos;
         if (pointerpos !== null)
@@ -239,9 +259,16 @@ stage.on('dragmove', (e) => {
     }
 });
 stage.on('click', (e) => {
+    var isRight = e.evt.button === 2;
+    if (isRight) {
+        console.log("menu");
+        stageContextMenu = new Konva.Group({});
+    }
 });
 //# sourceMappingURL=nodeEditor.js.map</script>
-<script nonce="fggynVCJ6jq835Q0hS74RDb4WZY1DPvi ">"use strict";
+<script nonce="Efry143hcm1vxaR0p7zL7T18ahnFMv5u ">"use strict";
+//# sourceMappingURL=utils.js.map</script>
+<script nonce="Efry143hcm1vxaR0p7zL7T18ahnFMv5u ">"use strict";
 (function () {
 });
 //# sourceMappingURL=vscode.js.map</script>
