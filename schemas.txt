@@ -1,9 +1,9 @@
  - node schema
  > "node-{id}-nt-{nt}-af-{flags}-rf-{flags}"
  - argument schema
- > "node-{id}-acid-{id}"
+ > "node-{id}-icid-{id}"
  - return schema
- > "node-{id}-rcid-{id}"
+ > "node-{id}-ocid-{id}"
 
 'node' - (meta)
 {id} - id (value)
@@ -13,6 +13,6 @@
 'af' - arguments flags (meta)
 'rf' - returns flags (meta)
 
-'acid' - argument connector id (meta)
-'rcid' - return connector id (meta)
+'icid' - in connector id (meta)
+'ocid' - out connector id (meta)
 {flags} - flags (value)
