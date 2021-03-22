@@ -107,7 +107,7 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
         pg.replace('nonce', nonce);
         pg.replace('cspSource', webview.cspSource);
         var page = pg.getCompiledHTML();
-        fs.writeFile(path.join(context.extensionPath, 'index.htm'), page, () => { });
+        fs.writeFile(path.join(context.extensionPath, 'out', 'index.htm'), page, () => { });
         return pg.getCompiledHTML();
 
     }
