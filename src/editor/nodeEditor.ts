@@ -101,7 +101,7 @@ class OutSignature {
 
 function createNode(x: number, y: number, signature: MethodSignature) {
     var nodeid = "node-" + layer.getAttr("existingNodesCount");
-    var nodeFullId = nodeid + "-nt-0-af-0-rf-0";
+    var nodeFullId = nodeid;
     layer.setAttr("existingNodesCount", layer.getAttr("existingNodesCount") + 1);
 
     var node = new Konva.Group({
