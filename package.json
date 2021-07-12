@@ -2,7 +2,7 @@
 	"name": "gryphonsharp-vscode",
 	"displayName": "G# vscode",
 	"description": "Gryphon# visual editor",
-	"version": "0.0.1",
+	"version": "1.0.1",
 	"engines": {
 		"vscode": "^1.48.0"
 	},
@@ -12,7 +12,7 @@
 	"activationEvents": [
 		"onCustomEditor:gsharp.nodeEditor"
 	],
-	"main": "./out/src/extension/extension.js",
+	"main": "./out/extension/extension.js",
 	"contributes": {
 		"customEditors": [
 			{
@@ -28,9 +28,9 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
+		"compile": "tsc -p ./src/editor && sc -watch -p ./src/extension",
 		"lint": "eslint src --ext ts",
-		"watch": "tsc -watch -p ./",
+		"watch": "tsc -watch -p ./src/editor && sc -watch -p ./src/extension",
 		"pretest": "npm run compile && npm run lint",
 		"test": "node ./out/test/runTest.js"
 	},

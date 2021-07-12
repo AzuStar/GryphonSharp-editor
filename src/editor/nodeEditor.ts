@@ -1,5 +1,3 @@
-/* eslint-disable curly */
-/* eslint-disable eqeqeq */
 import Konva from 'Konva';
 
 // @ts-ignore
@@ -10,6 +8,7 @@ There is absolutely no reason to stick to adaptive design or whatnot
 this is because everything is scalable with mousewheel
 the only priority design-wise is 'good looks'
 */
+
 
 const PANEL_WIDTH = 150;
 const CONTEXT_HEADER_PAD = 20;
