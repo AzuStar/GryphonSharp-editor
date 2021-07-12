@@ -1,0 +1,17 @@
+{
+	"extends": "../../tsconfig",
+	"compilerOptions": {
+		"module": "System",
+		"target": "ESNext",
+		"moduleResolution": "node",
+		// "rootDir": ".",
+		// "paths": {
+		// 	""}
+	},
+	"include": [
+		"**/*.ts"
+	],
+	// "exclude": [
+	// 	"node_modules"
+	// ]
+}
