@@ -1,9 +1,11 @@
 {
 	"extends": "../../tsconfig",
 	"compilerOptions": {
-		"module": "System",
-		"target": "ESNext",
+		"module": "AMD",
+		"target": "es5",
 		"moduleResolution": "node",
+		"lib": ["ES2016", "DOM", "ES5"],
+		"outFile": "out/editor.js",
 		// "rootDir": ".",
 		// "paths": {
 		// 	""}
