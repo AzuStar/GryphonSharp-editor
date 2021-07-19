@@ -12,10 +12,5 @@
     "typescript.tsc.autoDetect": "off",
     "spellright.language": [
         "en",
-        "ru"
-    ],
-    "spellright.documentTypes": [
-        "markdown",
-        "latex"
     ],
 }
