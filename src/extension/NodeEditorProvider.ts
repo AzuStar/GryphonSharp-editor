@@ -3,6 +3,7 @@ import * as path from 'path';
 import { Page } from './SiteBuilderUtilities';
 import * as fs from 'fs';
 
+// comment this
 export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
     private context: vscode.ExtensionContext;
@@ -97,22 +98,8 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
         scripts.forEach(element => {
             if (element.split('.').pop() === 'js') {
-                var content: string, regex: RegExp, match, group;
+                var content: string;
                 content = fs.readFileSync(path.join(this.scriptsPath, element), 'utf-8');
-                content = content.replace(/([^\n]+\n){5}/m, "");
-                regex = new RegExp(/const (\w+) ?= ?__importDefault\(require\(\"(\w+)\"\)\);/gm);
-                match = content.match(regex);
-                if (match !== null) {
-                    match.forEach(element => {
-                        group = element.match(/const (\w+) ?= ?__importDefault\(require\(\"(\w+)\"\)\);/m);
-                        if (group !== null) {
-                            content = content.replace(new RegExp(group[1] + ".default", "g"), group[2]);
-                            content = content.replace(element, "");
-                        }
-                        content = content.replace(element, "");
-                    });
-
-                }
                 content = content.replace(/\/\/! *pars-ignore\n[^\n]+/gm, "");
 
                 arr.push(`<script nonce="${nonce} ">${content}</script>`);

@@ -3,8 +3,10 @@
 	"compilerOptions": {
 		"module": "CommonJS",
 		"target": "ES6",
-		// "rootDir": ".",
+		"strictNullChecks": true,
 		// "outDir": "out"
 	},
-	"include": ["**/*.ts"],
+	"include": [
+		"**/*.ts"
+	],
 }
