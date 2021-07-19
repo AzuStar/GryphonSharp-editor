@@ -1,3 +1,4 @@
+//! pars-ignore
 import Konva from 'konva';
 
 /*
@@ -6,6 +7,7 @@ this is because everything is scalable with mousewheel
 the only priority design-wise is 'good looks'
 */
 
+// test
 const PANEL_WIDTH = 150;
 const CONTEXT_HEADER_PAD = 20;
 const CONTEXT_ELEMNT_PAD = 20;
@@ -26,7 +28,6 @@ var width = window.innerWidth;
 var height = window.innerHeight;
 var stageLeftButton: boolean;
 var stageBackgroundSizes: number[] = [100, 20];
-// var 
 
 
 var stage = new Konva.Stage({
@@ -111,7 +112,7 @@ function createNode(x: number, y: number, signature: MethodSignature) {
     });
 
     node.on('mousedown', (e) => {
-        var left = e.evt.button === 0;
+        var left = e.evt.button == 0;
         node.draggable(left);
     });
 
@@ -274,18 +275,9 @@ function createNode(x: number, y: number, signature: MethodSignature) {
 layer.add(createNode(50, 50, {
     methodName: "Main",
     ins: [],
-}));
-layer.add(createNode(200, 200, {
-    methodName: "SystemOutput",
-    ins: [
-        { name: "out" }, { name: "test" }, { name: "number" },
-        { name: "extra1" }, { name: "extra2" }, { name: "extra3" },
-        { name: "extra1" }, { name: "extra2" }, { name: "extra3" },
-        { name: "extra1" }, { name: "extra2" }, { name: "extra3" },
-    ],
     outs: [
-        { name: "return" }
-    ],
+        { name: "args" }
+    ]
 }));
 
 
@@ -299,7 +291,7 @@ stage.on('wheel', (e) => {
     // var oldBgScale = stageBackgroundSizes;
 
     var pointer = stage.getPointerPosition();
-    if (pointer !== null) {
+    if (pointer != null) {
         var mousePointTo = {
             x: (pointer.x - stage.x()) / oldScale,
             y: (pointer.y - stage.y()) / oldScale,
@@ -327,21 +319,21 @@ stage.on('contextmenu', (e) => {
     e.evt.preventDefault();
 });
 stage.on('mousedown', (e) => {
-    stageLeftButton = e.evt.button === 0;
+    stageLeftButton = e.evt.button == 0;
     stage.draggable(!stageLeftButton);
 });
 stage.on('dragmove', (e) => {
     stageContextMenu.hide();
     if (!stageLeftButton) {
         const pointerpos = stage.pointerPos;
-        if (pointerpos !== null)
+        if (pointerpos != null)
             stage.container().style.backgroundPosition = `${pointerpos.x}px ${pointerpos.y}px`;
 
     }
 });
 
 stage.on('click', (e) => {
-    var isRight = e.evt.button === 2;
+    var isRight = e.evt.button == 2;
     if (isRight) {
         console.log("menu");
         stageContextMenu.visible(true);
