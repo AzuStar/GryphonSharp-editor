@@ -1,12 +1,14 @@
 //! pars-ignore
 import Konva from 'konva';
+import { HostInterface } from './vscode';
+// import 
 
 /*
 There is absolutely no reason to stick to adaptive design or whatnot
 this is because everything is scalable with mousewheel
 the only priority design-wise is 'good looks'
 */
-
+// export function nodeEditor(){
 // test
 const PANEL_WIDTH = 150;
 const CONTEXT_HEADER_PAD = 20;
@@ -29,7 +31,6 @@ var height = window.innerHeight;
 var stageLeftButton: boolean;
 var stageBackgroundSizes: number[] = [100, 20];
 
-
 var stage = new Konva.Stage({
     container: 'editor-main',
     width: width,
@@ -37,6 +38,7 @@ var stage = new Konva.Stage({
     draggable: true,
 });
 
+//#region Context Menu
 var stageContextMenu = new Konva.Group({
     width: PANEL_WIDTH,
     height: PANEL_WIDTH * 2,
@@ -67,7 +69,7 @@ var element1 = new Konva.Text({
 
 elementList.add(element1);
 
-
+//#endregion
 
 
 stage.container().style.backgroundImage = "linear-gradient(rgba(255,255,255,0.2) 1.3px, transparent 2px),linear-gradient(90deg, rgba(255,255,255,0.2) 1.3px, transparent 1px),linear-gradient(rgba(255,255,255,0.1) 0.8px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.1) 0.8px, transparent 1px)";
@@ -81,29 +83,30 @@ var layer = new Konva.Layer({
 });
 stage.add(layer);
 
-class MethodSignature {
-    methodName!: string;
-    ins?: InSignature[];
-    outs?: OutSignature[];
+class NodeSignature {
+    //#region Non-nulls
+    x!: number;
+    y!: number;
+    type!: string;
+    //#endregion
+    inputs?: ConnectorSignature[];
+    outputs?: ConnectorSignature[];
 }
-class InSignature {
+class ConnectorSignature {
     name!: string;
-
-}
-class OutSignature {
-    name!: string;
+    data!: number;
 
 }
 
-function createNode(x: number, y: number, signature: MethodSignature) {
+function createNode(signature: NodeSignature) {
     var nodeid = "node-" + layer.getAttr("existingNodesCount");
     var nodeFullId = nodeid;
     layer.setAttr("existingNodesCount", layer.getAttr("existingNodesCount") + 1);
 
     var node = new Konva.Group({
         id: nodeFullId,
-        x: x,
-        y: y,
+        x: signature.x,
+        y: signature.y,
         draggable: true,
         connectorInCount: 0,
         connectorOutCount: 0,
@@ -122,7 +125,7 @@ function createNode(x: number, y: number, signature: MethodSignature) {
 
     var methodText = new Konva.Text({
         y: CONNECTOR_PAD_TOP,
-        text: signature.methodName,
+        // text: signature.methodName,
         fontSize: METHOD_TXT_FONT_SIZE,
         fontFamily: FONT_FAMILY,
         align: 'left',
@@ -153,10 +156,10 @@ function createNode(x: number, y: number, signature: MethodSignature) {
 
     });
     var bodyHeight = 20;
-    if (signature.ins != null && signature.ins.length > 0)
-        bodyHeight = signature.ins.length * (CONNECTOR_RADIUS * 2 + CONNECTOR_PAD_TOP);
-    if (signature.outs != null && signature.outs.length > 0) {
-        var hee = signature.outs.length * (CONNECTOR_RADIUS * 2 + CONNECTOR_PAD_TOP);
+    if (signature.inputs != null)
+        bodyHeight = signature.inputs.length * (CONNECTOR_RADIUS * 2 + CONNECTOR_PAD_TOP);
+    if (signature.outputs != null) {
+        var hee = signature.outputs.length * (CONNECTOR_RADIUS * 2 + CONNECTOR_PAD_TOP);
         if (bodyHeight < hee) bodyHeight = hee;
     }
     var bodyPanel = new Konva.Rect({
@@ -173,9 +176,9 @@ function createNode(x: number, y: number, signature: MethodSignature) {
 
     //#region 
     // in connectors
-    if (signature.ins != null) {
+    if (signature.inputs != null) {
         var connectorCircle: Konva.Circle, yOffset = CONNECTOR_PAD_TOP, connectorText: Konva.Text;
-        signature.ins.forEach(element => {
+        signature.inputs.forEach(element => {
             var connectorGroup = new Konva.Group({
                 id: nodeid + "-icid-" + node.getAttr("connectorInCount"),
                 y: yOffset,
@@ -216,9 +219,9 @@ function createNode(x: number, y: number, signature: MethodSignature) {
 
     //#region 
     // out connectors
-    if (signature.outs != null) {
+    if (signature.outputs != null) {
         var connectorCircle: Konva.Circle, yOffset = CONNECTOR_PAD_TOP, connectorText: Konva.Text;
-        signature.outs.forEach(element => {
+        signature.outputs.forEach(element => {
             var connectorGroup = new Konva.Group({
                 id: nodeid + "-ocid-" + node.getAttr("connectorOutCount"),
                 y: yOffset,
@@ -272,12 +275,14 @@ function createNode(x: number, y: number, signature: MethodSignature) {
     return node;
 }
 
-layer.add(createNode(50, 50, {
-    methodName: "Main",
-    ins: [],
-    outs: [
-        { name: "args" }
-    ]
+layer.add(createNode({
+    x: 0,
+    y: 10,
+    type: "Main",
+    // inputs: [],
+    // outputs: [
+    //     { name: "args" }
+    // ]
 }));
 
 
@@ -342,3 +347,5 @@ stage.on('click', (e) => {
             stageContextMenu.position(point);
     }
 });
+
+// }

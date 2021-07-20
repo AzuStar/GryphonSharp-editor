@@ -14,13 +14,17 @@
 
     ${styleUris}
 
+    ${scriptUris}
+
     <title>Gryphon# Node Editor</title>
 </head>
 
 <body>
     <div id="editor-main">
     </div>
-    ${scriptUris}
+    <script nonce="${nonce}">
+    Main();
+</script>
 </body>
 
 </html>
