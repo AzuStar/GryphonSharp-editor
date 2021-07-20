@@ -47,9 +47,12 @@
 		"konva": "^7.2.5",
 		"mocha": "^7.1.2",
 		"typescript": "^3.9.10",
-		"vscode-test": "^1.6.1"
+		"vscode-test": "^1.6.1",
+		"webpack": "^5.45.1",
+		"webpack-cli": "^4.7.2"
 	},
 	"dependencies": {
+		"ts-loader": "^9.2.3",
 		"tsd": "^0.14.0"
 	}
 }

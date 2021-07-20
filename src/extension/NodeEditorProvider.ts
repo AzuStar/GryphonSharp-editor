@@ -89,16 +89,17 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
         scriptlibs.forEach(element => {
             if (element.split('.').pop() == 'js')
-                arrlibs.push(`<script nonce="${nonce}" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'jslib', element))}"></script>`);
+                arrlibs.push(`<script nonce="${nonce}" data-main="scripts/main" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'jslib', element))}"></script>`);
         });
 
         scripts.forEach(element => {
             if (element.split('.').pop() == 'js') {
                 var content: string;
-                content = fs.readFileSync(path.join(this.scriptsPath, element), 'utf-8');
-                content = content.replace(/^\/\/! *pars-ignore\n[^\n]+$/gm, "");
+                // content = fs.readFileSync(path.join(this.scriptsPath, element), 'utf-8');
+                // content = content.replace(/^\/\/! *pars-ignore\n[^\n]+$/gm, "");
 
-                arr.push(`<script nonce="${nonce}" type="module">${content}</script>`);
+                // arr.push(`<script nonce="${nonce}" type="module">${content}</script>`);
+                arr.push(`<script nonce="${nonce}" data-main="scripts/main" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'out', 'editor', element))}"></script>`);
             }
         });
 
