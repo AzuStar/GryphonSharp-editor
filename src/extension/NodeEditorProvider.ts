@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { Page } from './SiteBuilderUtilities';
 import * as fs from 'fs';
+import { MessageHandler } from './NodeEditorCommunication';
 
 // comment this
 export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
@@ -44,23 +45,19 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
         webviewPanel.webview.html = this.GenerateWebview(webviewPanel.webview, this.context);
 
         webviewPanel.webview.onDidReceiveMessage(message => {
-            switch (message.command) {
-                case 'test':
-                    console.log("recieved");
-                    return;
-            }
+            MessageHandler(message);
         }, undefined, this.context.subscriptions);
 
-        function syncChanges() {
-            webviewPanel.webview.postMessage({
-                type: 'sync',
-                text: document.getText(),
-            });
-        }
+        // function syncChanges() {
+        //     webviewPanel.webview.postMessage({
+        //         type: 'sync',
+        //         text: document.getText(),
+        //     });
+        // }
 
         const syncChangesSubscription = vscode.workspace.onDidChangeTextDocument(e => {
-            if (e.document.uri.toString() === document.uri.toString()) {
-                syncChanges();
+            if (e.document.uri.toString() == document.uri.toString()) {
+                // syncChanges();
             }
         });
 
@@ -70,9 +67,8 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
     }
 
-    private updateTextDocument(document: vscode.TextDocument, ){
-
-    }
+    // private updateTextDocument(document: vscode.TextDocument, ){
+    // }
 
     scriptsPath: string;
     cssPath: string;
@@ -92,22 +88,22 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
         var cssarr: string[] = [];
 
         scriptlibs.forEach(element => {
-            if (element.split('.').pop() === 'js')
+            if (element.split('.').pop() == 'js')
                 arrlibs.push(`<script nonce="${nonce}" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'jslib', element))}"></script>`);
         });
 
         scripts.forEach(element => {
-            if (element.split('.').pop() === 'js') {
+            if (element.split('.').pop() == 'js') {
                 var content: string;
                 content = fs.readFileSync(path.join(this.scriptsPath, element), 'utf-8');
-                content = content.replace(/\/\/! *pars-ignore\n[^\n]+/gm, "");
+                content = content.replace(/^\/\/! *pars-ignore\n[^\n]+$/gm, "");
 
-                arr.push(`<script nonce="${nonce} ">${content}</script>`);
+                arr.push(`<script nonce="${nonce}" type="module">${content}</script>`);
             }
         });
 
         css.forEach(element => {
-            if (element.split('.').pop() === 'css')
+            if (element.split('.').pop() == 'css')
                 cssarr.push(`<link href="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'css', element))}" rel="stylesheet" />`);
         });
         pg.fillReplace('scriptUris', arr);

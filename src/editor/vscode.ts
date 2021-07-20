@@ -1,9 +1,18 @@
-// This script will be responsible for vscode communication
-// if ofc I can figure out scripts linking
-// compilation test
-(function () {
+
+import { Webview } from "vscode";
+
+// This script is responsible for vscode communication
+
+export class HostInterface {
 
     //@ts-ignore
-    const vscode = acquireVsCodeApi();
+    static const vscode : Webview = acquireVsCodeApi();
 
-});
+    public static syncData(data:string) {
+        HostInterface.vscode.postMessage({
+            command: "data-sync",
+            data: data,
+        });
+    }
+
+}
