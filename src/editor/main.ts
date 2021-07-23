@@ -1,8 +1,7 @@
-//! pars-ignore
-import { Utils } from "./utils";
+import { Utils } from "utils";
 
 // This will be executed when the webview loads
-function Main(){
+export function Main(){
     console.log("Running...");
 // nodeEditor();
 Utils.Init();

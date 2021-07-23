@@ -1,4 +1,3 @@
-
 import { Webview } from "vscode";
 
 // This script is responsible for vscode communication

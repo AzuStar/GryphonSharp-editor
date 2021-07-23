@@ -1,5 +1,4 @@
-//! pars-ignore
-import { HostInterface } from "./vscode";
+import { HostInterface } from "vscHost";
 
 export class Utils {
 
