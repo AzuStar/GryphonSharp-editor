@@ -92,24 +92,14 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
                 arrlibs.push(`<script nonce="${nonce}" data-main="scripts/main" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'jslib', element))}"></script>`);
         });
 
-        scripts.forEach(element => {
-            if (element.split('.').pop() == 'js') {
-                var content: string;
-                // content = fs.readFileSync(path.join(this.scriptsPath, element), 'utf-8');
-                // content = content.replace(/^\/\/! *pars-ignore\n[^\n]+$/gm, "");
-
-                // arr.push(`<script nonce="${nonce}" type="module">${content}</script>`);
-                arr.push(`<script nonce="${nonce}" data-main="scripts/main" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'out', 'editor', element))}"></script>`);
-            }
-        });
-
         css.forEach(element => {
             if (element.split('.').pop() == 'css')
                 cssarr.push(`<link href="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'css', element))}" rel="stylesheet" />`);
         });
-        pg.fillReplace('scriptUris', arr);
+        // pg.fillReplace('scriptUris', arr);
         pg.fillReplace('styleUris', cssarr);
         pg.fillReplace('scriptLibsUris', arrlibs);
+        pg.replace('editorScript', `<script nonce="${nonce}" type="module" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'js', 'editor.js'))}"></script>`);
         pg.replace('nonce', nonce);
         pg.replace('cspSource', webview.cspSource);
         var page = pg.getCompiledHTML();

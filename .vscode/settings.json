@@ -13,4 +13,5 @@
     "spellright.language": [
         "en",
     ],
+    "typescript.tsdk": "node_modules/ttypescript/lib"
 }

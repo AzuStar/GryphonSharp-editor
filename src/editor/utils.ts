@@ -1,4 +1,9 @@
-import * as vsc from "./vscode";
+import { VSCHost } from "vscHost";
 
-console.log("prepost test");
-vsc.HostInterface.syncData("hi, my name is reggie");
+export class Utils {
+
+    public static Init() {
+        console.log("prepost test");
+        VSCHost.syncData("hi, my name is reggie");
+    }
+}

@@ -1,4 +1,5 @@
 out/
 node_modules
+webStatic/js
 .vscode-test/
 *.vsix
