@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { HostInterface } from 'vscHost';
+import { VSCHost } from 'vscHost';
 // import 
 
 /*
@@ -28,13 +28,14 @@ const FONT_FAMILY = 'Arial';
 var width = window.innerWidth;
 var height = window.innerHeight;
 var stageLeftButton: boolean;
-var stageBackgroundSizes: number[] = [100, 20];
+// var stage.getAttr("bgSizes"): [number, number] = [100, 20];
 
 var stage = new Konva.Stage({
     container: 'editor-main',
     width: width,
     height: height,
     draggable: true,
+    bgSizes: [100, 20]
 });
 
 //#region Context Menu
@@ -72,7 +73,8 @@ elementList.add(element1);
 
 
 stage.container().style.backgroundImage = "linear-gradient(rgba(255,255,255,0.2) 1.3px, transparent 2px),linear-gradient(90deg, rgba(255,255,255,0.2) 1.3px, transparent 1px),linear-gradient(rgba(255,255,255,0.1) 0.8px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.1) 0.8px, transparent 1px)";
-stage.container().style.backgroundSize = `${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px`;
+
+stage.container().style.backgroundSize = `${stage.getAttr("bgSizes")[0]}px ${stage.getAttr("bgSizes")[0]}px, ${stage.getAttr("bgSizes")[0]}px ${stage.getAttr("bgSizes")[0]}px, ${stage.getAttr("bgSizes")[1]}px ${stage.getAttr("bgSizes")[1]}px, ${stage.getAttr("bgSizes")[1]}px ${stage.getAttr("bgSizes")[1]}px`;
 
 Konva.angleDeg = false;
 Konva.dragButtons = [0, 2];
@@ -292,7 +294,7 @@ var scaleBy = 1.03;
 stage.on('wheel', (e) => {
     e.evt.preventDefault();
     var oldScale = stage.scaleX();
-    // var oldBgScale = stageBackgroundSizes;
+    var oldScaleBG: [number, number] = stage.getAttr("bgSizes");
 
     var pointer = stage.getPointerPosition();
     if (pointer != null) {
@@ -301,10 +303,18 @@ stage.on('wheel', (e) => {
             y: (pointer.y - stage.y()) / oldScale,
         };
 
-        var newScale =
-            e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+        var newScale;
+        var newScaleBG: [number, number];
+        if (e.evt.deltaY > 0) {
+            newScale = oldScale / scaleBy;
+            newScaleBG = [oldScaleBG[0] / scaleBy, oldScaleBG[1] / scaleBy];
+        } else {
+            newScale = oldScale * scaleBy;
+            newScaleBG = [oldScaleBG[0] * scaleBy, oldScaleBG[1] * scaleBy];
+        }
 
         stage.scale({ x: newScale, y: newScale });
+        // stage.container().style.backgroundSize = `${newScaleBG[0]}px ${newScaleBG[0]}px, ${stage.getAttr("bgSizes")[0]}px ${stage.getAttr("bgSizes")[0]}px, ${stage.getAttr("bgSizes")[1]}px ${stage.getAttr("bgSizes")[1]}px, ${newScaleBG[1]}px ${newScaleBG[1]}px`;
 
         var newPos = {
             x: pointer.x - mousePointTo.x * newScale,
@@ -312,10 +322,6 @@ stage.on('wheel', (e) => {
         };
         stage.position(newPos);
 
-        // stageBackgroundSizes[0] = 100 * newScale;
-        // stageBackgroundSizes[1] = 100 * newScale;
-
-        // stage.container().style.backgroundSize = `${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[0]}px ${stageBackgroundSizes[0]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px, ${stageBackgroundSizes[1]}px ${stageBackgroundSizes[1]}px`;
     }
     stage.batchDraw();
 });
@@ -347,4 +353,4 @@ stage.on('click', (e) => {
     }
 });
 
-// }
+VSCHost.syncData(stage.toJSON());
