@@ -25,6 +25,7 @@ class RecursiveDependencyOrder {
 }
 
 const scriptsPath = path.join("out", "editor");
+const scriptSources = path.join("src", "editor");
 
 //#region Regex-es
 const pars_ignore = /^\/\/! *pars-ignore\n[^\n]+$/gm;
@@ -35,6 +36,11 @@ const remove_imports = /^import .+ from (?:'|")(\w+)(?:'|");$/gm;
 
 
 var editorScripts = fs.readdirSync(scriptsPath);
+var editorScriptsSources = fs.readdirSync(scriptSources);
+
+editorScriptsSources = editorScriptsSources.map(element => { return element.slice(0, -3)+".js"; });
+
+editorScripts = editorScripts.filter( ( el ) => editorScriptsSources.includes( el ) );
 
 var bundle: string = "";
 

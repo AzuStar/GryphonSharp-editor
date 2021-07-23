@@ -1,9 +1,9 @@
-import { HostInterface } from "vscHost";
+import { VSCHost } from "vscHost";
 
 export class Utils {
 
     public static Init() {
         console.log("prepost test");
-        HostInterface.syncData("hi, my name is reggie");
+        VSCHost.syncData("hi, my name is reggie");
     }
 }
