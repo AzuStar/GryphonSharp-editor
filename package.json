@@ -28,19 +28,14 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-
 		"compile:extension": "tsc -p ./src/extension",
 		"compile:editor": "tsc -p ./src/editor",
 		"postcompile": "ts-node ./custom-compilers/editorBundler.ts",
-		
 		"lint": "eslint src --ext ts",
-
 		"watch:editor": "tsc-watch -p ./src/editor --onSuccess \"ts-node ./custom-compilers/editorBundler.ts\"",
 		"watch:extension": "tsc -watch -p ./src/extension",
-
 		"pretest": "npm run compile & npm run lint",
 		"test": "node ./out/test/runTest.js",
-
 		"runner": "run-p {1}:* --"
 	},
 	"devDependencies": {
