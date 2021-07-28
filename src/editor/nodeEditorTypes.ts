@@ -1,9 +1,74 @@
 import Konva from "konva";
-import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_PAD_TOP, NE_CONNECTOR_RADIUS, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_FONT_FAMILY, NE_METHOD_PANEL_OPACITY, NE_METHOD_TXT_FONT_SIZE, NE_METHOD_TXT_PAD_BOT, NE_METHOD_TXT_PAD_LEFT, NodeSignature, NE_PANEL_WIDTH, NE_STAGE } from "nodeEditorConst";
+import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_PAD_TOP, NE_CONNECTOR_RADIUS, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_FONT_FAMILY, NE_METHOD_PANEL_OPACITY, NE_METHOD_TXT_FONT_SIZE, NE_METHOD_TXT_PAD_BOT, NE_METHOD_TXT_PAD_LEFT, NE_PANEL_WIDTH } from "nodeEditorConst";
+import { VSCHost } from "vscHost";
 
-export class EditorFuncs {
-    public static CreateNode(signature: NodeSignature) {
+export class NodeSignature {
+    //#region Non-nulls
+    x!: number;
+    y!: number;
+    type!: number;
+    //#endregion
+    reference?: string;
+    target?: string;
+    inputs?: ConnectorSignature[];
+    outputs?: ConnectorSignature[];
+}
+export class ConnectorSignature {
+    name!: string;
+    data!: number;
+
+}
+
+export interface EditorState {
+    schema: {
+        nodeCount: number,
+        dataCount: number,
+        bgSizes: [number, number],
+    };
+    nodes: { [id: string]: NodeSignature }
+}
+
+export class EditorStage {
+    private _stage = new Konva.Stage({
+        container: 'editor-main',
+        draggable: true,
+    });
+    public get stage() {
+        return this._stage;
+    }
+    private layer = new Konva.Layer();
+    // code state
+    public state: EditorState = {
+        schema: {
+            nodeCount: 0,
+            dataCount: 0,
+            bgSizes: [100, 20]
+        },
+        nodes: {}
+    }
+
+
+    constructor() {
+        this.stage.add(this.layer);
+        VSCHost.eventLoadHandler = (msg) => {
+            this.setSyncState(JSON.parse(msg.data));
+        };
+    }
+
+    public setSyncState(jsonState: EditorState) {
+        this.state = jsonState;
+        for (const id in this.state.nodes) {
+            this.createNode(this.state.nodes[id]);
+        }
+    }
+    public getSyncState() {
+        return JSON.stringify(this.state);
+    }
+
+    public createNode(signature: NodeSignature) {
+        this.state.nodes[this.state.schema.nodeCount] = signature;
         var node = new Konva.Group({
+            id: "node-" + this.state.schema.nodeCount++,
             x: signature.x,
             y: signature.y,
             draggable: true,
@@ -169,6 +234,23 @@ export class EditorFuncs {
         });
         node.add(shad);
         shad.zIndex(0);
-        NE_STAGE.addNode(node, signature);
+        this.layer.add(node)
+
     }
+
+    public nodeUpdateState(nodeGroup: Konva.Group) {
+        var signature = this.state.nodes[nodeGroup.id().split("-")[1]];
+
+        signature.x = nodeGroup.x();
+        signature.y = nodeGroup.y();
+
+        this.state.nodes[nodeGroup.id().split("-")[1]] = signature;
+        VSCHost.syncData(NE_STAGE.getSyncState());
+    }
+
+
+
+
 }
+
+export const NE_STAGE = new EditorStage();

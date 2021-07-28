@@ -74,16 +74,13 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
     cssPath: string;
 
     GenerateWebview(webview: vscode.Webview, context: vscode.ExtensionContext): string {
-        var scripts: string[] = [];
         var css: string[] = [];
         var scriptlibs: string[] = [];
         const nonce = NodeEditorProvider.getNonce();
 
         scriptlibs = fs.readdirSync(path.join(context.extensionPath, 'webStatic', 'jslib'));
-        scripts = fs.readdirSync(this.scriptsPath);
         css = fs.readdirSync(this.cssPath);
         var pg = new Page(path.join(context.extensionPath, 'webStatic', 'index.htm'));
-        var arr: string[] = [];
         var arrlibs: string[] = [];
         var cssarr: string[] = [];
 
@@ -96,7 +93,6 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
             if (element.split('.').pop() == 'css')
                 cssarr.push(`<link href="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'css', element))}" rel="stylesheet" />`);
         });
-        // pg.fillReplace('scriptUris', arr);
         pg.fillReplace('styleUris', cssarr);
         pg.fillReplace('scriptLibsUris', arrlibs);
         pg.replace('editorScript', `<script nonce="${nonce}" type="module" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'js', 'editor.js'))}"></script>`);

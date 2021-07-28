@@ -1,8 +1,6 @@
 import Konva from 'konva';
-import { Vector2d } from 'konva/types/types';
-import { NE_PANEL_WIDTH, NE_CONTEXT_HEADER_PAD, NE_CONTEXT_ELEMNT_PAD, EditorStage, NE_METHOD_TXT_FONT_SIZE, NE_SCALE_STRENGTH, NE_STAGE } from 'nodeEditorConst';
-import { EditorFuncs } from 'nodeEditorFuncs';
-import { VSCHost } from 'vscHost';
+import { NE_PANEL_WIDTH, NE_CONTEXT_HEADER_PAD, NE_CONTEXT_ELEMNT_PAD, NE_METHOD_TXT_FONT_SIZE, NE_SCALE_STRENGTH } from 'nodeEditorConst';
+import { NE_STAGE } from 'nodeEditorTypes';
 
 /*
 There is absolutely no reason to stick to adaptive design or whatnot
@@ -119,7 +117,7 @@ NE_STAGE.stage.on('click', (e) => {
     if (isRight) {
         var pos = { x: 0, y: 0 };
         pos = NE_STAGE.stage.getPointerPosition()!;
-        EditorFuncs.CreateNode({
+        NE_STAGE.createNode({
             type: 0,
             x: pos?.x,
             y: pos?.y,

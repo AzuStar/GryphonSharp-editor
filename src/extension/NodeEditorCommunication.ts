@@ -6,15 +6,19 @@ import { Page } from './SiteBuilderUtilities';
  * 
  */
 
+// Schemas for communications are in README.md
+
 class CommunicationStrcut{
     command!: string;
     data?: string;
 }
 
 export function MessageHandler(message: CommunicationStrcut) {
-    console.log("new message:");
     switch (message.command) {
-        case 'data-sync':
+        case 'vsc-ready':
+            
+        return;
+        case 'vsc-sync':
             console.log(message.data);
             return;
     }

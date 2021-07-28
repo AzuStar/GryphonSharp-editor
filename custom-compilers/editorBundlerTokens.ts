@@ -3,24 +3,18 @@ import path from 'path';
 
 // singleton recursive pattern
 class RecursiveDependencyOrder {
-    private static lockedScripts: string[] = [];
 
     public static incrementDependencies(script: string) {
-        this.lockedScripts = [];
         this.recursiveIncrement(script);
-        // gacky, but idea is that root should not be incremented
-        jsscripts[script][1] -= 1;
+        // hacky, but idea is that root should not be incremented
+        exportedTokens[script][1] -= 1;
     }
 
     private static recursiveIncrement(script: string) {
-        if (!(this.lockedScripts.includes(script))) {
-            this.lockedScripts.push(script);
              //higher priority means script has to be higher for everything to be understood
-            jsscripts[script][1] += 1;
-            for (const scri of jsscripts[script][0])
+             exportedTokens[script][1] += 1;
+            for (const scri of exportedTokens[script][0])
                 this.recursiveIncrement(scri);
-        }
-        else console.error("Recursive depedency of itself in " + script+" -> "+this.lockedScripts);
     }
 }
 
@@ -29,7 +23,7 @@ const scriptSources = path.join("src", "editor");
 
 //#region Regex-es
 const pars_ignore = /^\/\/! *pars-ignore\n[^\n]+$/gm;
-const remove_exports = /^export /gm;
+const remove_exports = /^export (.+$)/gm;
 const remove_imports = /^import .+ from (?:'|")(\w+)(?:'|");$/gm;
 
 //#endregion
@@ -44,21 +38,32 @@ editorScripts = editorScripts.filter( ( el ) => editorScriptsSources.includes( e
 
 var bundle: string = "";
 
-var jsscripts: { [id: string]: [Array<string>, number, string] } = {};
+// Idea:
+// Extract exported tokens from script bodies
+// Prioritize tokens individually
+// Keep the rest of the body
+// Build Exported Token list (in-order)
+// Slap the rest to the bottom of bundle
+
+// {script}.js: Dependencies, script body
+var jsscripts: { [id: string]: [Array<string>, string] } = {};
+// {script}.js-{token}: priority, token body
+var exportedTokens: { [id: string]: [Array<string>, number, string] } = {};
+
+const extractableTokens = ["var", "for", ""];
 
 // set up dictionary
 editorScripts.forEach(element => {
     if (element.split('.').pop() == 'js') {
-        jsscripts[element] = [[], 0, fs.readFileSync(path.join(scriptsPath, element), 'utf-8')];
+        jsscripts[element] = [[], fs.readFileSync(path.join(scriptsPath, element), 'utf-8')];
     }
 });
 
 for (const key in jsscripts) {
-    var content: string = jsscripts[key][2];
+    var content: string = jsscripts[key][1];
     // removes pars-ignore line and 1 line below
     content = content.replace(pars_ignore, "");
-    // drops all exports from js files
-    // for now only handles ts-compiled files
+    // extract all exports
     content = content.replace(remove_exports, "");
     // find all imports and reconstruct them in order of access
     var imports = content.matchAll(remove_imports);
@@ -69,7 +74,7 @@ for (const key in jsscripts) {
     }
     // also remove imports
     content = content.replace(remove_imports, "");
-    jsscripts[key][2] = content;
+    jsscripts[key][1] = content;
 }
 
 // compute dependency order
@@ -79,15 +84,15 @@ for (const key in jsscripts) {
 
 // order sort the dicc
 var sortedScripts: [number, string][] = [];
-for (const key in jsscripts) {
-    sortedScripts.push([jsscripts[key][1], jsscripts[key][2]]);
-}
+// for (const key in jsscripts) {
+//     sortedScripts.push([jsscripts[key][1], jsscripts[key][2]]);
+// }
 
 sortedScripts = sortedScripts.sort((obj1, obj2) => {
     return obj2[0] - obj1[0];
 });
 
-//bundle the bundle
+// append the remains
 for (const context of sortedScripts) {
     bundle += "\n\n"+context[1];
 }
