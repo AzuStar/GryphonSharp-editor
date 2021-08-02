@@ -1,4 +1,4 @@
-import { LoadEvent } from "vscComTypes";
+import { LoadEvent, SyncEvent } from "vscComTypes";
 import { Webview } from "vscode";
 
 // Communication schema is in README
@@ -6,27 +6,30 @@ import { Webview } from "vscode";
 window.addEventListener("message", async e => {
     switch (e.data.command) {
         case 'editor-load':
-            VSCHost.eventLoadHandler(e.data);
+            VSCShell.eventLoadHandler(e.data);
+        case 'editor-sync':
+            VSCShell.eventSyncHandler(e.data);
     }
 });
 
 // This script is responsible for vscode communication
 
-export class VSCHost {
+export class VSCShell {
 
     //@ts-ignore
     static vscode: Webview = acquireVsCodeApi();
 
     public static eventLoadHandler: (msg: LoadEvent) => void;
+    public static eventSyncHandler: (msg: SyncEvent) => void;
 
     public static sendReady() {
-        VSCHost.vscode.postMessage({
+        VSCShell.vscode.postMessage({
             command: "vsc-ready",
         });
     }
 
     public static syncData(data: string) {
-        VSCHost.vscode.postMessage({
+        VSCShell.vscode.postMessage({
             command: "vsc-sync",
             data: data,
         });

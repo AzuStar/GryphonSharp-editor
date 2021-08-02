@@ -1,8 +1,34 @@
 import Konva from "konva";
-import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_PAD_TOP, NE_CONNECTOR_RADIUS, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_FONT_FAMILY, NE_METHOD_PANEL_OPACITY, NE_METHOD_TXT_FONT_SIZE, NE_METHOD_TXT_PAD_BOT, NE_METHOD_TXT_PAD_LEFT, NE_PANEL_WIDTH } from "nodeEditorConst";
-import { VSCHost } from "vscHost";
+import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_PAD_TOP, NE_CONNECTOR_RADIUS, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_CONTEXT_ELEMNT_PAD, NE_CONTEXT_HEADER_PAD, NE_FONT_FAMILY, NE_METHOD_PANEL_OPACITY, NE_METHOD_TXT_FONT_SIZE, NE_METHOD_TXT_PAD_BOT, NE_METHOD_TXT_PAD_LEFT, NE_PANEL_WIDTH } from "nodeEditorConst";
+import { VSCShell } from "vscShell";
+
+// Disgusting
+// deserialize(input: any): NodeSignature {
+//     this.x = input.x;
+//     this.y = input.y;
+//     this.type = input.type;
+//     this.reference = input.reference;
+//     this.target = input.target;
+//     this.execution = input.execution;
+//     this.inputs = input.inputs;
+//     this.outputs = input.outputs;
+//     return this;
+// }
+// deserialize(input: any): ConnectorSignature {
+//     this.name = input.name;
+//     this.dataType = input.dataType;
+//     return this;
+// }
+// deserialize(input: any): EditorState {
+//     this.schema!.bgSizes = input.schema.bgSizes;
+//     this.schema!.dataCount = input.schema.dataCount;
+//     this.schema!.nodeCount = input.schema.nodeCount;
+//     this.nodes = input.nodes;
+//     return this;
+// };
 
 export class NodeSignature {
+
     //#region Non-nulls
     x!: number;
     y!: number;
@@ -10,22 +36,23 @@ export class NodeSignature {
     //#endregion
     reference?: string;
     target?: string;
+    execution?: number
     inputs?: ConnectorSignature[];
     outputs?: ConnectorSignature[];
 }
 export class ConnectorSignature {
+
     name!: string;
-    data!: number;
+    dataType!: string;
 
 }
-
 export interface EditorState {
     schema: {
         nodeCount: number,
         dataCount: number,
         bgSizes: [number, number],
     };
-    nodes: { [id: string]: NodeSignature }
+    nodes: { [id: string]: NodeSignature };
 }
 
 export class EditorStage {
@@ -36,7 +63,7 @@ export class EditorStage {
     public get stage() {
         return this._stage;
     }
-    private layer = new Konva.Layer();
+    private nodeLayer = new Konva.Layer();
     // code state
     public state: EditorState = {
         schema: {
@@ -45,24 +72,111 @@ export class EditorStage {
             bgSizes: [100, 20]
         },
         nodes: {}
-    }
+    };
 
 
     constructor() {
-        this.stage.add(this.layer);
-        VSCHost.eventLoadHandler = (msg) => {
-            this.setSyncState(JSON.parse(msg.data));
+        // Ill get back to it
+        //#region Context Menu
+        // var ContextMenu = new Konva.Group({
+        //     width: NE_PANEL_WIDTH,
+        //     height: NE_PANEL_WIDTH * 2,
+        //     // visible: false
+        // });
+
+        // var elementList = new Konva.Group({
+        //     width: ContextMenu.width(),
+        //     height: ContextMenu.width() * 2 - NE_CONTEXT_HEADER_PAD,
+        //     y: NE_CONTEXT_HEADER_PAD
+        // });
+
+        // ContextMenu.add(elementList);
+
+        // var element1 = new Konva.Text({
+        //     y: NE_CONTEXT_ELEMNT_PAD,
+        //     text: 'Output',
+        //     fontSize: NE_METHOD_TXT_FONT_SIZE,
+        //     fontFamily: 'Calibri',
+        //     align: 'left',
+        //     // x: NE_METHOD_TXT_PAD_NE_LEFT / 2,
+        //     ellipsis: true,
+        //     width: NE_PANEL_WIDTH,
+        //     height: NE_CONTEXT_HEADER_PAD,
+        //     wrap: 'none'
+
+        // });
+
+        // elementList.add(element1);
+        //#endregion
+        this.stage.add(this.nodeLayer);
+        VSCShell.eventSyncHandler = (msg) => {
+            if (msg.data != null)
+                try {
+                    this.setState(JSON.parse(msg.data, (key, val) => {
+                        switch (key) {
+                            case 'inputs':
+                            case 'outputs':
+                            case 'schema':
+                            case 'bgSizes':
+                            case 'nodes':
+                                if (typeof val == "object") {
+                                    console.log(val);
+                                    return val;
+                                }
+                                else throw ("Document parsing error object-" + typeof val);
+                            case 'x':
+                            case 'y':
+                            case 'type':
+                            case 'execution':
+                            case 'nodeCount':
+                            case 'dataCount':
+                                if (typeof val == "number")
+                                    return val;
+                                else throw ("Document parsing error number-" + typeof val);
+                            case 'reference':
+                            case 'target':
+                            case 'name':
+                                if (typeof val == "string") {
+                                    return val;
+                                } else throw ("Document parsing error string-" + typeof val);
+                            case 'undefined':
+                            case 'NaN':
+                                // strip restricted keys
+                                return null;
+                            default:
+                                if (typeof key != "number") {
+                                    console.warn("Unidentified symbol:" + key);
+                                }
+                                return val;
+                        }
+                    }));
+                } catch (error) {
+                    console.error(error);
+                }
+            else console.error("Initializing new document...");
         };
     }
 
-    public setSyncState(jsonState: EditorState) {
+    public setState(jsonState: EditorState) {
         this.state = jsonState;
+        this.nodeLayer.destroyChildren();
         for (const id in this.state.nodes) {
             this.createNode(this.state.nodes[id]);
         }
+        this.stage.batchDraw();
     }
-    public getSyncState() {
+    public getState() {
         return JSON.stringify(this.state);
+    }
+
+    public nodeUpdateState(nodeGroup: Konva.Group) {
+        var signature = this.state.nodes[nodeGroup.id().split("-")[1]];
+
+        signature.x = nodeGroup.x();
+        signature.y = nodeGroup.y();
+
+        this.state.nodes[nodeGroup.id().split("-")[1]] = signature;
+        VSCShell.syncData(NE_STAGE.getState());
     }
 
     public createNode(signature: NodeSignature) {
@@ -234,18 +348,8 @@ export class EditorStage {
         });
         node.add(shad);
         shad.zIndex(0);
-        this.layer.add(node)
+        this.nodeLayer.add(node)
 
-    }
-
-    public nodeUpdateState(nodeGroup: Konva.Group) {
-        var signature = this.state.nodes[nodeGroup.id().split("-")[1]];
-
-        signature.x = nodeGroup.x();
-        signature.y = nodeGroup.y();
-
-        this.state.nodes[nodeGroup.id().split("-")[1]] = signature;
-        VSCHost.syncData(NE_STAGE.getSyncState());
     }
 
 

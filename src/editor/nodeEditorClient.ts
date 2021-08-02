@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { NE_PANEL_WIDTH, NE_CONTEXT_HEADER_PAD, NE_CONTEXT_ELEMNT_PAD, NE_METHOD_TXT_FONT_SIZE, NE_SCALE_STRENGTH } from 'nodeEditorConst';
-import { NE_STAGE } from 'nodeEditorTypes';
+import { NE_STAGE } from 'nodeEditorHost';
+import { VSCShell } from 'vscShell';
 
 /*
 There is absolutely no reason to stick to adaptive design or whatnot
@@ -11,44 +12,11 @@ the only priority design-wise is 'good looks'
 
 var width = window.innerWidth;
 var height = window.innerHeight;
-var NE_STAGELeftButton: boolean;
-// var NE_STAGE.state.schema.bgSizes: [number, number] = [100, 20];
+var stageLeftButton: boolean;
 
 NE_STAGE.stage.width(width);
 NE_STAGE.stage.height(height);
 
-//#region Context Menu
-var ContextMenu = new Konva.Group({
-    width: NE_PANEL_WIDTH,
-    height: NE_PANEL_WIDTH * 2,
-    visible: false
-});
-
-var elementList = new Konva.Group({
-    width: ContextMenu.width(),
-    height: ContextMenu.width() * 2 - NE_CONTEXT_HEADER_PAD,
-    y: NE_CONTEXT_HEADER_PAD
-});
-
-ContextMenu.add(elementList);
-
-var element1 = new Konva.Text({
-    y: NE_CONTEXT_ELEMNT_PAD,
-    text: 'Output',
-    fontSize: NE_METHOD_TXT_FONT_SIZE,
-    fontFamily: 'Calibri',
-    align: 'left',
-    // x: NE_METHOD_TXT_PAD_NE_LEFT / 2,
-    ellipsis: true,
-    width: NE_PANEL_WIDTH,
-    height: NE_CONTEXT_HEADER_PAD,
-    wrap: 'none'
-
-});
-
-elementList.add(element1);
-
-//#endregion
 
 
 NE_STAGE.stage.container().style.backgroundImage = "linear-gradient(rgba(255,255,255,0.2) 1.3px, transparent 2px),linear-gradient(90deg, rgba(255,255,255,0.2) 1.3px, transparent 1px),linear-gradient(rgba(255,255,255,0.1) 0.8px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.1) 0.8px, transparent 1px)";
@@ -99,12 +67,14 @@ NE_STAGE.stage.on('contextmenu', (e) => {
     e.evt.preventDefault();
 });
 NE_STAGE.stage.on('mousedown', (e) => {
-    NE_STAGELeftButton = e.evt.button == 0;
-    NE_STAGE.stage.draggable(!NE_STAGELeftButton);
+    stageLeftButton = e.evt.button == 0;
+    NE_STAGE.stage.draggable(!stageLeftButton);
 });
+// NE_STAGE.stage.on('mouseup', (e) =>{
+//     NE_STAGE.nodeUpdateState();
+// });
 NE_STAGE.stage.on('dragmove', (e) => {
-    ContextMenu.hide();
-    if (!NE_STAGELeftButton) {
+    if (!stageLeftButton) {
         const pointerpos = NE_STAGE.stage.pointerPos;
         if (pointerpos != null)
             NE_STAGE.stage.container().style.backgroundPosition = `${pointerpos.x}px ${pointerpos.y}px`;
@@ -128,3 +98,6 @@ NE_STAGE.stage.on('click', (e) => {
         //     ContextMenu.position(point);
     }
 });
+
+// Client finished setting up
+VSCShell.sendReady();

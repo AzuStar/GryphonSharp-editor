@@ -1,8 +1,8 @@
-import { VSCHost } from "vscHost";
+import { VSCShell } from "vscShell";
 
 export class Utils {
 
     public static Init() {
-        VSCHost.syncData("hi, my name is reggie");
+        VSCShell.syncData("hi, my name is reggie");
     }
 }

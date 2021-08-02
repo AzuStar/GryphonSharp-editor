@@ -2,24 +2,14 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { Page } from './SiteBuilderUtilities';
+import { NodeEditorProvider } from './NodeEditorProvider';
 /**
  * 
  */
 
 // Schemas for communications are in README.md
 
-class CommunicationStrcut{
-    command!: string;
-    data?: string;
-}
 
-export function MessageHandler(message: CommunicationStrcut) {
-    switch (message.command) {
-        case 'vsc-ready':
-            
-        return;
-        case 'vsc-sync':
-            console.log(message.data);
-            return;
-    }
-}
+
+// flaw of TS language
+// easier to keep everything dirty in a single file

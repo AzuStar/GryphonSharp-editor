@@ -2,12 +2,16 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { Page } from './SiteBuilderUtilities';
 import * as fs from 'fs';
-import { MessageHandler } from './NodeEditorCommunication';
+
+class CommunicationStrcut {
+    command!: string;
+    data?: string;
+}
 
 // comment this
 export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
-    private context: vscode.ExtensionContext;
+    public context: vscode.ExtensionContext;
 
     private static getNonce() {
         let text = '';
@@ -44,26 +48,65 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
         webviewPanel.webview.html = this.GenerateWebview(webviewPanel.webview, this.context);
 
-        webviewPanel.webview.onDidReceiveMessage(message => {
-            MessageHandler(message);
-        }, undefined, this.context.subscriptions);
 
-        // function syncChanges() {
-        //     webviewPanel.webview.postMessage({
-        //         type: 'sync',
-        //         text: document.getText(),
+
+
+        // communication
+        function messageHandler(message: CommunicationStrcut) {
+            switch (message.command) {
+                case 'vsc-ready':
+                    syncDocument(document);
+                    return;
+                case 'vsc-sync':
+                    const edit = new vscode.WorkspaceEdit();
+                    edit.replace(document.uri,
+                        new vscode.Range(0, 0, document.lineCount, 0),
+                        message.data!);
+                    vscode.workspace.applyEdit(edit);
+                    return;
+            }
+        }
+
+        function sendMessage(message: CommunicationStrcut) {
+            webviewPanel.webview.postMessage({
+                command: message.command,
+                data: message.data
+            });
+        }
+
+        function syncDocument(text: vscode.TextDocument) {
+            sendMessage({
+                command: 'editor-sync',
+                data: text.getText()
+            });
+        }
+
+        // function loadDocument(text: vscode.TextDocument) {
+        //     sendMessage({
+        //         command: 'editor-load',
+        //         data: text.getText()
         //     });
         // }
 
-        const syncChangesSubscription = vscode.workspace.onDidChangeTextDocument(e => {
-            if (e.document.uri.toString() == document.uri.toString()) {
-                // syncChanges();
+        webviewPanel.webview.onDidReceiveMessage(message => {
+            messageHandler(message);
+        }, undefined, this.context.subscriptions);
+
+
+        const syncChangesSubscription = vscode.workspace.onDidSaveTextDocument(e => {
+            if (e.uri.toString() == document.uri.toString()) {
+                syncDocument(document);
             }
         });
 
         webviewPanel.onDidDispose(() => {
             syncChangesSubscription.dispose();
         });
+
+
+
+
+
 
     }
 
