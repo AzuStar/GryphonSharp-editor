@@ -1,8 +1,18 @@
 # Gryphonsharp-vscode README
+<img src="https://user-images.githubusercontent.com/52426335/127782714-2f404c37-d82b-462d-a9b2-8efe582ed955.png" alt="logo" width="200"/>
 
 ## Schemas
 Collection of schemas for components of node editor communications. This repo will contain all schemas even those used by transpiler and overwatch.
 ### Editor Commands
+1. `editor-sync`
+```
+command: 'editor-sync'
+data: {document body} | undefined
+```
+Instructs NodeEditor to refresh contents of the document. This is used when document was edited externally or loaded for the first time. <br>
+If data is null or undefined, editor will assume new file, broken files are not properly accounted for.
+
+#### Alternative implementation (less effecient)
 > All commands prefixed 'editor-'
 1. `editor-load`
 ```
@@ -19,18 +29,6 @@ data: {document body} | undefined
 ```
 Instructs NodeEditor to refresh contents of the document (keeping history of previous states). This is used when document was edited externally and change was caught by VSCode. <br>
 If data is null or undefined, editor will assume deletion of the document, but will keep state and mark source as 'deleted/moved'.
-
-3. `editor-save`
-```
-command: 'editor-save'
-requestNonce: {nonce}
-```
-```
-reply : {
-{document body}
-}
-```
-Instructs NodeEditor to commit changes, finalize and return document body back.
 
 ### VSCode Commands
 > All commands prefixed 'vsc-'
