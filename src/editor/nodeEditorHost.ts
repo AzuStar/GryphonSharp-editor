@@ -1,69 +1,13 @@
 import Konva from "konva";
-import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_PAD_TOP, NE_CONNECTOR_RADIUS, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_CONTEXT_ELEMNT_PAD, NE_CONTEXT_HEADER_PAD, NE_FONT_FAMILY, NE_METHOD_PANEL_OPACITY, NE_METHOD_TXT_FONT_SIZE, NE_METHOD_TXT_PAD_BOT, NE_METHOD_TXT_PAD_LEFT, NE_PANEL_WIDTH } from "nodeEditorConst";
-import { VSCShell } from "vscShell";
-
-// Disgusting
-// deserialize(input: any): NodeSignature {
-//     this.x = input.x;
-//     this.y = input.y;
-//     this.type = input.type;
-//     this.reference = input.reference;
-//     this.target = input.target;
-//     this.execution = input.execution;
-//     this.inputs = input.inputs;
-//     this.outputs = input.outputs;
-//     return this;
-// }
-// deserialize(input: any): ConnectorSignature {
-//     this.name = input.name;
-//     this.dataType = input.dataType;
-//     return this;
-// }
-// deserialize(input: any): EditorState {
-//     this.schema!.bgSizes = input.schema.bgSizes;
-//     this.schema!.dataCount = input.schema.dataCount;
-//     this.schema!.nodeCount = input.schema.nodeCount;
-//     this.nodes = input.nodes;
-//     return this;
-// };
-
-export class NodeSignature {
-
-    //#region Non-nulls
-    x!: number;
-    y!: number;
-    type!: number;
-    //#endregion
-    reference?: string;
-    target?: string;
-    execution?: number
-    inputs?: ConnectorSignature[];
-    outputs?: ConnectorSignature[];
-}
-export class ConnectorSignature {
-
-    name!: string;
-    dataType!: string;
-
-}
-export interface EditorState {
-    schema: {
-        nodeCount: number,
-        dataCount: number,
-        bgSizes: [number, number],
-        bgPos: [number, number],
-    };
-    nodes: { [id: string]: NodeSignature };
-}
+import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_PAD_TOP, NE_CONNECTOR_RADIUS, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_CONTEXT_ELEMNT_PAD, NE_CONTEXT_HEADER_PAD, NE_FONT_FAMILY, NE_METHOD_PANEL_OPACITY, NE_METHOD_TXT_FONT_SIZE, NE_METHOD_TXT_PAD_BOT, NE_METHOD_TXT_PAD_LEFT, NE_PANEL_WIDTH, NE_STAGE } from "./nodeEditorConst";
+import { EditorState, NodeSignature } from "./nodeEditorDatas";
+import { VSCShell } from "./vscShell";
 
 export class EditorStage {
-    private _stage = new Konva.Stage({
+    public stage = new Konva.Stage({
         container: 'editor-main',
         draggable: true,
     });
-    public get stage() {
-        return this._stage;
-    }
     private nodeLayer = new Konva.Layer();
     // code state
     public state: EditorState = {
@@ -366,5 +310,3 @@ export class EditorStage {
 
 
 }
-
-export const NE_STAGE = new EditorStage();

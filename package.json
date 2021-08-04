@@ -30,9 +30,9 @@
 		"vscode:prepublish": "npm run compile",
 		"compile:extension": "tsc -p ./src/extension",
 		"compile:editor": "tsc -p ./src/editor",
-		"postcompile": "ts-node ./custom-compilers/editorBundler.ts",
+		"postcompile": "browserify ./out/editor/main.js -o ./webStatic/js/editor.js",
 		"lint": "eslint src --ext ts",
-		"watch:editor": "tsc-watch -p ./src/editor --onSuccess \"ts-node ./custom-compilers/editorBundler.ts\"",
+		"watch:editor": "tsc-watch -p ./src/editor --onSuccess \"browserify ./out/editor/main.js -o ./webStatic/js/editor.js\"",
 		"watch:extension": "tsc -watch -p ./src/extension",
 		"pretest": "npm run compile & npm run lint",
 		"test": "node ./out/test/runTest.js",
@@ -56,6 +56,7 @@
 		"webpack-cli": "^4.7.2"
 	},
 	"dependencies": {
+		"browserify": "^17.0.0",
 		"concurrently": "^6.2.0",
 		"npm-run-all": "^4.1.5",
 		"ts-node": "^10.1.0",

@@ -1,7 +1,8 @@
 import Konva from 'konva';
-import { NE_PANEL_WIDTH, NE_CONTEXT_HEADER_PAD, NE_CONTEXT_ELEMNT_PAD, NE_METHOD_TXT_FONT_SIZE, NE_SCALE_STRENGTH } from 'nodeEditorConst';
-import { NE_STAGE } from 'nodeEditorHost';
-import { VSCShell } from 'vscShell';
+import { NE_PANEL_WIDTH, NE_CONTEXT_HEADER_PAD, NE_CONTEXT_ELEMNT_PAD, NE_METHOD_TXT_FONT_SIZE, NE_SCALE_STRENGTH, NE_STAGE } from './nodeEditorConst';
+import { VSCShell } from './vscShell';
+
+// main entry point
 
 /*
 There is absolutely no reason to stick to adaptive design or whatnot

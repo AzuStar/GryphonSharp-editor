@@ -1,5 +1,5 @@
-import { LoadEvent, SyncEvent } from "vscComTypes";
 import { Webview } from "vscode";
+import { LoadEvent, SyncEvent } from "./vscEventTypes";
 
 // Communication schema is in README
 

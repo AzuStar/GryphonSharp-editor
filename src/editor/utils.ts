@@ -1,4 +1,4 @@
-import { VSCShell } from "vscShell";
+import { VSCShell } from "./vscShell";
 
 export class Utils {
 

@@ -1,3 +1,5 @@
+import { EditorStage } from "./nodeEditorHost";
+
 export const NE_PANEL_WIDTH = 150;
 export const NE_CONTEXT_HEADER_PAD = 20;
 export const NE_CONTEXT_ELEMNT_PAD = 20;
@@ -14,3 +16,4 @@ export const NE_METHOD_PANEL_OPACITY = 1;//0.6;
 export const NE_BODY_PANEL_OPACITY = 1;//0.4;
 export const NE_FONT_FAMILY = 'Arial';
 export const NE_SCALE_STRENGTH = 1.03;
+export const NE_STAGE : EditorStage = new EditorStage();

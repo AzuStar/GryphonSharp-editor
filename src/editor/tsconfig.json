@@ -1,9 +1,9 @@
 {
 	"extends": "../../tsconfig",
 	"compilerOptions": {
-		"baseUrl": ".",
-		"module": "ES6",
-		"target": "ES6",
+		// "baseUrl": ".",
+		"module": "CommonJS",
+		// "target": "ES6",
 		"moduleResolution": "Node",
 		"esModuleInterop": true,
 		"sourceMap": false,
