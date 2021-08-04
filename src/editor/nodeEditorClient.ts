@@ -23,6 +23,8 @@ NE_STAGE.stage.container().style.backgroundImage = "linear-gradient(rgba(255,255
 
 NE_STAGE.stage.container().style.backgroundSize = `${NE_STAGE.state.schema.bgSizes[0]}px ${NE_STAGE.state.schema.bgSizes[0]}px, ${NE_STAGE.state.schema.bgSizes[0]}px ${NE_STAGE.state.schema.bgSizes[0]}px, ${NE_STAGE.state.schema.bgSizes[1]}px ${NE_STAGE.state.schema.bgSizes[1]}px, ${NE_STAGE.state.schema.bgSizes[1]}px ${NE_STAGE.state.schema.bgSizes[1]}px`;
 
+NE_STAGE.stage.container().style.backgroundPosition = `${NE_STAGE.state.schema.bgPos[1]}px ${NE_STAGE.state.schema.bgPos[0]}px`;
+
 Konva.angleDeg = false;
 Konva.dragButtons = [0, 2];
 
@@ -76,8 +78,10 @@ NE_STAGE.stage.on('mousedown', (e) => {
 NE_STAGE.stage.on('dragmove', (e) => {
     if (!stageLeftButton) {
         const pointerpos = NE_STAGE.stage.pointerPos;
-        if (pointerpos != null)
+        if (pointerpos != null){
+            NE_STAGE.state.schema.bgPos = [pointerpos.x, pointerpos.y];
             NE_STAGE.stage.container().style.backgroundPosition = `${pointerpos.x}px ${pointerpos.y}px`;
+        }
 
     }
 });
@@ -87,7 +91,7 @@ NE_STAGE.stage.on('click', (e) => {
     if (isRight) {
         var pos = { x: 0, y: 0 };
         pos = NE_STAGE.stage.getPointerPosition()!;
-        NE_STAGE.createNode({
+        NE_STAGE.newNode({
             type: 0,
             x: pos?.x,
             y: pos?.y,

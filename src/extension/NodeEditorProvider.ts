@@ -61,7 +61,7 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
                     const edit = new vscode.WorkspaceEdit();
                     edit.replace(document.uri,
                         new vscode.Range(0, 0, document.lineCount, 0),
-                        message.data!);
+                        message.data!); // change this to replace parts not whole thing
                     vscode.workspace.applyEdit(edit);
                     return;
             }

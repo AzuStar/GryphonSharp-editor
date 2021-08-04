@@ -51,6 +51,7 @@ export interface EditorState {
         nodeCount: number,
         dataCount: number,
         bgSizes: [number, number],
+        bgPos: [number, number],
     };
     nodes: { [id: string]: NodeSignature };
 }
@@ -69,7 +70,8 @@ export class EditorStage {
         schema: {
             nodeCount: 0,
             dataCount: 0,
-            bgSizes: [100, 20]
+            bgSizes: [100, 20],
+            bgPos: [0, 0]
         },
         nodes: {}
     };
@@ -118,6 +120,7 @@ export class EditorStage {
                             case 'outputs':
                             case 'schema':
                             case 'bgSizes':
+                            case 'bgPos':
                             case 'nodes':
                                 if (typeof val == "object") {
                                     console.log(val);
@@ -142,9 +145,11 @@ export class EditorStage {
                             case 'undefined':
                             case 'NaN':
                                 // strip restricted keys
-                                return null;
+                                // not returning from reviver
+                                // drops value and key
+                                break;
                             default:
-                                if (typeof key != "number") {
+                                if (typeof parseInt(key) != "number") {
                                     console.warn("Unidentified symbol:" + key);
                                 }
                                 return val;
@@ -153,7 +158,7 @@ export class EditorStage {
                 } catch (error) {
                     console.error(error);
                 }
-            else console.error("Initializing new document...");
+            else console.log("Initializing new document...");
         };
     }
 
@@ -161,7 +166,7 @@ export class EditorStage {
         this.state = jsonState;
         this.nodeLayer.destroyChildren();
         for (const id in this.state.nodes) {
-            this.createNode(this.state.nodes[id]);
+            this.createNode(this.state.nodes[id], parseInt(id));
         }
         this.stage.batchDraw();
     }
@@ -169,7 +174,7 @@ export class EditorStage {
         return JSON.stringify(this.state);
     }
 
-    public nodeUpdateState(nodeGroup: Konva.Group) {
+    public editNodeState(nodeGroup: Konva.Group) {
         var signature = this.state.nodes[nodeGroup.id().split("-")[1]];
 
         signature.x = nodeGroup.x();
@@ -179,10 +184,15 @@ export class EditorStage {
         VSCShell.syncData(NE_STAGE.getState());
     }
 
-    public createNode(signature: NodeSignature) {
-        this.state.nodes[this.state.schema.nodeCount] = signature;
+    public newNode(signature: NodeSignature) {
+        this.createNode(signature, Object.keys(this.state.nodes).length);
+        VSCShell.syncData(NE_STAGE.getState());
+    }
+
+    private createNode(signature: NodeSignature, id: number) {
+        this.state.nodes[id] = signature;
         var node = new Konva.Group({
-            id: "node-" + this.state.schema.nodeCount++,
+            id: "node-" + id,
             x: signature.x,
             y: signature.y,
             draggable: true,
@@ -193,7 +203,7 @@ export class EditorStage {
             node.draggable(left);
         });
         node.on('dragend', (e) => {
-            NE_STAGE.nodeUpdateState(node);
+            NE_STAGE.editNodeState(node);
         });
 
         var headGroup = new Konva.Group({
