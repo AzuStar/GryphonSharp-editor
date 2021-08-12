@@ -3,10 +3,11 @@
 	"compilerOptions": {
 		// "baseUrl": ".",
 		"module": "CommonJS",
-		// "target": "ES6",
+		"target": "ES6",
 		"moduleResolution": "Node",
 		"esModuleInterop": true,
 		"sourceMap": false,
+		"suppressImplicitAnyIndexErrors": true,
 		"alwaysStrict": true
 	},
 	"include": [

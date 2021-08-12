@@ -93,14 +93,22 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
         }, undefined, this.context.subscriptions);
 
 
-        const syncChangesSubscription = vscode.workspace.onDidSaveTextDocument(e => {
+        const syncSaveChangesSubscription = vscode.workspace.onDidSaveTextDocument(e => {
             if (e.uri.toString() == document.uri.toString()) {
                 syncDocument(document);
             }
         });
 
+        const syncWorkbenchChangesSubscription = vscode.workspace.onDidChangeTextDocument(e=>{
+            if(e.document.uri.toString() == document.uri.toString())
+            {
+                syncDocument(document);
+            }
+        });
+
+
         webviewPanel.onDidDispose(() => {
-            syncChangesSubscription.dispose();
+            syncSaveChangesSubscription.dispose();
         });
 
 

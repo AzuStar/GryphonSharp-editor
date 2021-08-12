@@ -1,24 +1,19 @@
 import Konva from "konva";
 import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_PAD_TOP, NE_CONNECTOR_RADIUS, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_CONTEXT_ELEMNT_PAD, NE_CONTEXT_HEADER_PAD, NE_FONT_FAMILY, NE_METHOD_PANEL_OPACITY, NE_METHOD_TXT_FONT_SIZE, NE_METHOD_TXT_PAD_BOT, NE_METHOD_TXT_PAD_LEFT, NE_PANEL_WIDTH, NE_STAGE } from "./nodeEditorConst";
 import { EditorState, NodeSignature } from "./nodeEditorDatas";
+import { INodeEditor } from "./nodeEditorInterfaces";
 import { VSCShell } from "./vscShell";
 
-export class EditorStage {
+
+
+export class EditorStage implements INodeEditor {
     public stage = new Konva.Stage({
         container: 'editor-main',
         draggable: true,
     });
     private nodeLayer = new Konva.Layer();
     // code state
-    public state: EditorState = {
-        schema: {
-            nodeCount: 0,
-            dataCount: 0,
-            bgSizes: [100, 20],
-            bgPos: [0, 0]
-        },
-        nodes: {}
-    };
+    public state: EditorState = new EditorState();
 
 
     constructor() {
@@ -58,56 +53,64 @@ export class EditorStage {
         VSCShell.eventSyncHandler = (msg) => {
             if (msg.data != null)
                 try {
-                    this.setState(JSON.parse(msg.data, (key, val) => {
-                        switch (key) {
-                            case 'inputs':
-                            case 'outputs':
-                            case 'schema':
-                            case 'bgSizes':
-                            case 'bgPos':
-                            case 'nodes':
-                                if (typeof val == "object") {
-                                    console.log(val);
-                                    return val;
-                                }
-                                else throw ("Document parsing error object-" + typeof val);
-                            case 'x':
-                            case 'y':
-                            case 'type':
-                            case 'execution':
-                            case 'nodeCount':
-                            case 'dataCount':
-                                if (typeof val == "number")
-                                    return val;
-                                else throw ("Document parsing error number-" + typeof val);
-                            case 'reference':
-                            case 'target':
-                            case 'name':
-                                if (typeof val == "string") {
-                                    return val;
-                                } else throw ("Document parsing error string-" + typeof val);
-                            case 'undefined':
-                            case 'NaN':
-                                // strip restricted keys
-                                // not returning from reviver
-                                // drops value and key
-                                break;
-                            default:
-                                if (typeof parseInt(key) != "number") {
-                                    console.warn("Unidentified symbol:" + key);
-                                }
-                                return val;
-                        }
-                    }));
-                } catch (error) {
-                    console.error(error);
+                    this.setState(JSON.parse(msg.data));
+                } catch (err) {
+                    console.error(err);
                 }
+            // try {
+            //     this.setState(JSON.parse(msg.data, (key, val) => {
+            //         switch (key) {
+            //             case 'inputs':
+            //             case 'outputs':
+            //             case 'schema':
+            //             case 'bgSizes':
+            //             case 'bgPos':
+            //             case 'nodes':
+            //             case 'datas':
+            //                 if (typeof val == "object") {
+            //                     return val;
+            //                 }
+            //                 else throw ("Document parsing error object-" + typeof val);
+            //             case 'x':
+            //             case 'y':
+            //             case 'type':
+            //             case 'execution':
+            //             case 'nodeCount':
+            //             case 'dataCount':
+            //                 if (typeof val == "number")
+            //                     return val;
+            //                 else throw ("Document parsing error number-" + typeof val);
+            //             case 'reference':
+            //             case 'target':
+            //             case 'name':
+            //                 if (typeof val == "string") {
+            //                     return val;
+            //                 } else throw ("Document parsing error string-" + typeof val);
+            //             case 'undefined':
+            //             case 'NaN':
+            //                 // strip restricted keys
+            //                 //
+            //                 // not returning from reviver
+            //                 // drops value and key
+            //                 break;
+            //             default:
+            //                 if (typeof parseInt(key) != "number") {
+            //                     console.warn("Unidentified symbol:" + key);
+            //                 }
+            //                 return val;
+            //         }
+            //     }));
+            // } catch (error) {
+            //     console.error(error);
+            // }
             else console.log("Initializing new document...");
         };
     }
 
-    public setState(jsonState: EditorState) {
-        this.state = jsonState;
+    public setState(jsonState: object) {
+        this.state = new EditorState();
+        //@ts-ignore
+        this.state = this.deserializeRecursive(this.state, jsonState);
         this.nodeLayer.destroyChildren();
         for (const id in this.state.nodes) {
             this.createNode(this.state.nodes[id], parseInt(id));
@@ -306,7 +309,20 @@ export class EditorStage {
 
     }
 
-
+    private deserializeRecursive(objLock: object, json: object): object {
+        if(objLock==undefined){ // merge non existing keys
+            objLock = json;
+            return objLock
+        }
+        for (var prop in json) {
+            if (typeof json[prop] == 'object') {
+                objLock[prop] = this.deserializeRecursive(objLock[prop], json[prop]);
+            } else if (typeof objLock[prop] == typeof json[prop]) {
+                objLock[prop] = json[prop]
+            }
+        }
+        return objLock;
+    }
 
 
 }

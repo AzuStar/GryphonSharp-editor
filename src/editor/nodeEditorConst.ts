@@ -17,3 +17,6 @@ export const NE_BODY_PANEL_OPACITY = 1;//0.4;
 export const NE_FONT_FAMILY = 'Arial';
 export const NE_SCALE_STRENGTH = 1.03;
 export const NE_STAGE : EditorStage = new EditorStage();
+
+//@ts-ignore
+window.consts = this;
