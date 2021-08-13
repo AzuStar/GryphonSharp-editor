@@ -109,6 +109,7 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
         webviewPanel.onDidDispose(() => {
             syncSaveChangesSubscription.dispose();
+            syncWorkbenchChangesSubscription.dispose();
         });
 
 
