@@ -24,14 +24,14 @@ export class EditorSchema {
     nodeCount!: number;
     dataCount!: number;
     bgSizes!: [number, number];
-    bgPos!: [number, number];
+    stagePos!: [number, number];
 }
 export class EditorState {
     schema: EditorSchema = {
         nodeCount: 0,
         dataCount: 0,
         bgSizes: [100, 20],
-        bgPos: [0, 0]
+        stagePos: [0, 0]
     };
     nodes: { [id: string]: NodeSignature; } = {};
     datas: { [id: string]: DataSignature } = {};

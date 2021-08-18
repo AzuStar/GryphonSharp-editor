@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { NE_PANEL_WIDTH, NE_CONTEXT_HEADER_PAD, NE_CONTEXT_ELEMNT_PAD, NE_METHOD_TXT_FONT_SIZE, NE_SCALE_STRENGTH, NE_STAGE } from './nodeEditorConst';
+import { NE_PANEL_WIDTH, NE_CONTEXT_HEADER_PAD, NE_CONTEXT_ELEMNT_PAD, NE_METHOD_TXT_FONT_SIZE, NE_SCALE_STRENGTH, NE_STAGE, NE_FONT_FAMILY } from './nodeEditorConst';
 import { VSCShell } from './vscShell';
 
 // main entry point
@@ -11,20 +11,17 @@ the only priority design-wise is 'good looks'
 */
 
 
-var width = window.innerWidth;
-var height = window.innerHeight;
 var stageLeftButton: boolean;
 
-NE_STAGE.stage.width(width);
-NE_STAGE.stage.height(height);
-
+NE_STAGE.stage.width(window.innerWidth);
+NE_STAGE.stage.height(window.innerHeight);
 
 
 NE_STAGE.stage.container().style.backgroundImage = "linear-gradient(rgba(255,255,255,0.2) 1.3px, transparent 2px),linear-gradient(90deg, rgba(255,255,255,0.2) 1.3px, transparent 1px),linear-gradient(rgba(255,255,255,0.1) 0.8px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.1) 0.8px, transparent 1px)";
 
 NE_STAGE.stage.container().style.backgroundSize = `${NE_STAGE.state.schema.bgSizes[0]}px ${NE_STAGE.state.schema.bgSizes[0]}px, ${NE_STAGE.state.schema.bgSizes[0]}px ${NE_STAGE.state.schema.bgSizes[0]}px, ${NE_STAGE.state.schema.bgSizes[1]}px ${NE_STAGE.state.schema.bgSizes[1]}px, ${NE_STAGE.state.schema.bgSizes[1]}px ${NE_STAGE.state.schema.bgSizes[1]}px`;
 
-NE_STAGE.stage.container().style.backgroundPosition = `${NE_STAGE.state.schema.bgPos[1]}px ${NE_STAGE.state.schema.bgPos[0]}px`;
+NE_STAGE.stage.container().style.backgroundPosition = `0px 0px`;
 
 Konva.angleDeg = false;
 Konva.dragButtons = [0, 2];
@@ -66,6 +63,7 @@ NE_STAGE.stage.on('wheel', (e) => {
     }
     NE_STAGE.stage.batchDraw();
 });
+// Safer & easier to implement custom contexmenu
 NE_STAGE.stage.on('contextmenu', (e) => {
     e.evt.preventDefault();
 });
@@ -79,8 +77,8 @@ NE_STAGE.stage.on('mousedown', (e) => {
 NE_STAGE.stage.on('dragmove', (e) => {
     if (!stageLeftButton) {
         const pointerpos = NE_STAGE.stage.pointerPos;
-        if (pointerpos != null){
-            NE_STAGE.state.schema.bgPos = [pointerpos.x, pointerpos.y];
+        if (pointerpos != null) {
+            // NE_STAGE.state.schema.bgPos = [pointerpos.x, pointerpos.y];
             NE_STAGE.stage.container().style.backgroundPosition = `${pointerpos.x}px ${pointerpos.y}px`;
         }
 
@@ -89,20 +87,33 @@ NE_STAGE.stage.on('dragmove', (e) => {
 
 NE_STAGE.stage.on('click', (e) => {
     var isRight = e.evt.button == 2;
+
     if (isRight) {
         var pos = { x: 0, y: 0 };
         pos = NE_STAGE.stage.getPointerPosition()!;
+        pos.x += NE_STAGE.stage.position().x;
+        pos.y += NE_STAGE.stage.position().y;
         NE_STAGE.newNode({
             type: 0,
             x: pos?.x,
             y: pos?.y,
         });
-        // ContextMenu.visible(true);
-        // var point = NE_STAGE.stage.pointerPos;
-        // if (point != null)
-        //     ContextMenu.position(point);
     }
 });
 
+window.onresize = () => {
+NE_STAGE.stage.width(window.innerWidth);
+NE_STAGE.stage.height(window.innerHeight);
+}
+
+// var filename = new Konva.Text({
+//     fontSize: NE_METHOD_TXT_FONT_SIZE,
+//     fontFamily: NE_FONT_FAMILY,
+//     align: 'left',
+//     ellipsis: true,
+//     wrap: 'none',
+//     draggable: false
+// });
+
 // Client finished setting up
-VSCShell.sendReady();
+VSCShell.sendReady()

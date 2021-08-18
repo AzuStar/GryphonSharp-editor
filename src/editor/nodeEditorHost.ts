@@ -50,6 +50,10 @@ export class EditorStage implements INodeEditor {
         // elementList.add(element1);
         //#endregion
         this.stage.add(this.nodeLayer);
+        this.stage.on('dragend', (e) => {
+            this.state.schema.stagePos = [this.stage.position().x, this.stage.position().y];
+            VSCShell.syncData(this.getState());
+        });
         VSCShell.eventSyncHandler = (msg) => {
             if (msg.data != null)
                 try {
@@ -115,19 +119,28 @@ export class EditorStage implements INodeEditor {
         for (const id in this.state.nodes) {
             this.createNode(this.state.nodes[id], parseInt(id));
         }
+        this.stage.position({
+            x: this.state.schema.stagePos[0],
+            y: this.state.schema.stagePos[1]
+        });
         this.stage.batchDraw();
     }
     public getState() {
         return JSON.stringify(this.state);
     }
 
-    public editNodeState(nodeGroup: Konva.Group) {
-        var signature = this.state.nodes[nodeGroup.id().split("-")[1]];
+    public updateNodeState(nodeGroup: Konva.Group) {
+        const nodeid = nodeGroup.id().split("-")[1];
+        var signature = this.state.nodes[nodeid];
 
+        // update position
         signature.x = nodeGroup.x();
         signature.y = nodeGroup.y();
 
-        this.state.nodes[nodeGroup.id().split("-")[1]] = signature;
+        // update connections
+
+
+        this.state.nodes[nodeid] = signature;
         VSCShell.syncData(NE_STAGE.getState());
     }
 
@@ -145,21 +158,62 @@ export class EditorStage implements INodeEditor {
             draggable: true,
         });
 
+        var lineGroup = new Konva.Group();
+        node.add(lineGroup);
+        var line: Konva.Line;
+        var overConnector: boolean = false;
+
         node.on('mousedown', (e) => {
             var left = e.evt.button == 0;
-            node.draggable(left);
+            if (overConnector) {
+                node.draggable(false);
+                line = new Konva.Line({
+                    points: [0, 200],
+                    fill: 'black',
+                    stroke: 'red'
+                });
+                lineGroup.add(line);
+                lineGroup.draw();
+            } else
+                node.draggable(left);
+        });
+        node.on('mouseup', (e) => {
+            if (overConnector) {
+                console.log(line);
+
+            }
+            else {
+                console.log(line);
+            }
+            console.log("mouse up!");
         });
         node.on('dragend', (e) => {
-            NE_STAGE.editNodeState(node);
+            node.zIndex(0);
+            NE_STAGE.updateNodeState(node);
+            console.log();
+        });
+        node.on('dragstart', (e) => {
+            node.zIndex(8);
         });
 
         var headGroup = new Konva.Group({
-
         });
-
+        var methodReferenceText = new Konva.Text({
+            y: NE_CONNECTOR_PAD_TOP / 2,
+            text: signature.reference,
+            fontSize: NE_METHOD_TXT_FONT_SIZE / 1.7,
+            fontFamily: NE_FONT_FAMILY,
+            align: 'left',
+            x: NE_METHOD_TXT_PAD_LEFT / 3,
+            ellipsis: true,
+            width: NE_PANEL_WIDTH,
+            height: NE_METHOD_TXT_FONT_SIZE,
+            wrap: 'none',
+            opacity: 0.9
+        });
         var methodText = new Konva.Text({
-            y: NE_CONNECTOR_PAD_TOP,
-            // text: signature.methodName,
+            y: NE_CONNECTOR_PAD_TOP * 2,
+            text: signature.target,
             fontSize: NE_METHOD_TXT_FONT_SIZE,
             fontFamily: NE_FONT_FAMILY,
             align: 'left',
@@ -183,6 +237,7 @@ export class EditorStage implements INodeEditor {
         });
 
         headGroup.add(methodNamePanel);
+        headGroup.add(methodReferenceText);
         headGroup.add(methodText);
         headGroup.height(methodNamePanel.height());
 
@@ -241,9 +296,13 @@ export class EditorStage implements INodeEditor {
                     strokeWidth: 0.4,
                 });
                 yOffset += NE_CONNECTOR_RADIUS * 2 + NE_CONNECTOR_PAD_TOP;
-                connectorCircle.on('mousedown', (e) => {
-
+                connectorCircle.on('mouseover', (e) => {
+                    overConnector = true;
                 });
+                connectorCircle.on('mouseout', (e) => {
+                    overConnector = false;
+                });
+
                 connectorGroup.add(connectorCircle);
                 connectorGroup.add(connectorText);
                 bodyGroup.add(connectorGroup);
@@ -310,7 +369,7 @@ export class EditorStage implements INodeEditor {
     }
 
     private deserializeRecursive(objLock: object, json: object): object {
-        if(objLock==undefined){ // merge non existing keys
+        if (objLock == undefined) { // merge non existing keys
             objLock = json;
             return objLock
         }

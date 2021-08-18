@@ -22,7 +22,7 @@ export class VSCShell {
     public static eventLoadHandler: (msg: LoadEvent) => void;
     public static eventSyncHandler: (msg: SyncEvent) => void;
 
-    public static sendReady() {
+    public static sendReady() : void {
         VSCShell.vscode.postMessage({
             command: "vsc-ready",
         });
