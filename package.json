@@ -30,12 +30,10 @@
 		"vscode:prepublish": "npm run compile",
 		"compile:extension": "tsc -p ./src/extension",
 		"compile:editor": "tsc -p ./src/editor",
-		"postcompile": "browserify ./out/editor/main.js -o ./webStatic/js/editor.js",
+		"postcompile": "browserify ./out/editor/nodeEditorMain.js -o ./webStatic/js/editor.js",
 		"lint": "eslint src --ext ts",
-		"watch:editor": "tsc-watch -p ./src/editor --onSuccess \"browserify ./out/editor/main.js -o ./webStatic/js/editor.js\"",
+		"watch:editor": "tsc-watch -p ./src/editor --onSuccess \"browserify ./out/editor/nodeEditorMain.js -o ./webStatic/js/editor.js\"",
 		"watch:extension": "tsc -watch -p ./src/extension",
-		"pretest": "npm run compile & npm run lint",
-		"test": "node ./out/test/runTest.js",
 		"runner": "run-p {1}:* --"
 	},
 	"devDependencies": {
