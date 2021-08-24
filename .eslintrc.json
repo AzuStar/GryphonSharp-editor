@@ -19,10 +19,10 @@
     },
     "rules": {
         "@typescript-eslint/class-name-casing": "off",
-        "@typescript-eslint/semi": "warn",
         "curly": "off",
         "eqeqeq": "off",
         "no-throw-literal": "warn",
-        "semi": "off"
+        "semi": "off",
+        "@typescript-eslint/semi": ["off"]
     }
 }
