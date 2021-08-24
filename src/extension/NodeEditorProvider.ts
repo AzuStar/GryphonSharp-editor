@@ -138,7 +138,7 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
                 cssarr.push(`<link href="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'css', element))}" rel="stylesheet" />`);
         });
         pg.fillReplace('styleUris', cssarr);
-        pg.replace('editorScript', `<script nonce="${nonce}" type="module" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'js', 'editor.js'))}"></script>`);
+        pg.replace('editorScript', `<script nonce="${nonce}" type="module" src="${webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'webStatic', 'js', 'editorBundle.js'))}"></script>`);
         pg.replace('nonce', nonce);
         pg.replace('cspSource', webview.cspSource);
         var page = pg.getCompiledHTML();

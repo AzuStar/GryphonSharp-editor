@@ -1,9 +1,8 @@
 import Konva from "konva";
 import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_PAD_TOP, NE_CONNECTOR_RADIUS, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_CONTEXT_ELEMNT_PAD, NE_CONTEXT_HEADER_PAD, NE_FONT_FAMILY, NE_METHOD_PANEL_OPACITY, NE_METHOD_TXT_FONT_SIZE, NE_METHOD_TXT_PAD_BOT, NE_METHOD_TXT_PAD_LEFT, NE_PANEL_WIDTH, NE_STAGE } from "./nodeEditorConst";
-import { EditorState, NodeSignature } from "./nodeEditorDatas";
-import { INodeEditor } from "./nodeEditorInterfaces";
+import { EditorState, NodeSignature } from "./nodeEditorStateDef";
+import { DragState, INodeEditor } from "./nodeEditorHostDef";
 import { VSCShell } from "./vscShell";
-
 
 
 export class EditorStage implements INodeEditor {
@@ -15,6 +14,7 @@ export class EditorStage implements INodeEditor {
     // code state
     public state: EditorState = new EditorState();
 
+    public dragState : DragState = DragState.NONE;
 
     constructor() {
         // Ill get back to it
@@ -166,14 +166,15 @@ export class EditorStage implements INodeEditor {
         node.on('mousedown', (e) => {
             var left = e.evt.button == 0;
             if (overConnector) {
+                this.dragState = DragState.CONNECT;
                 node.draggable(false);
                 line = new Konva.Line({
                     points: [0, 200],
                     fill: 'black',
                     stroke: 'red'
                 });
-                lineGroup.add(line);
-                lineGroup.draw();
+                this.nodeLayer.add(line);
+                line.draw();
             } else
                 node.draggable(left);
         });

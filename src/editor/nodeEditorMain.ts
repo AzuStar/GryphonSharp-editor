@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import { NE_PANEL_WIDTH, NE_CONTEXT_HEADER_PAD, NE_CONTEXT_ELEMNT_PAD, NE_METHOD_TXT_FONT_SIZE, NE_SCALE_STRENGTH, NE_STAGE, NE_FONT_FAMILY } from './nodeEditorConst';
+import { DragState } from './nodeEditorHostDef';
 import { VSCShell } from './vscShell';
 
 // main entry point
@@ -71,9 +72,14 @@ NE_STAGE.stage.on('mousedown', (e) => {
     stageLeftButton = e.evt.button == 0;
     NE_STAGE.stage.draggable(!stageLeftButton);
 });
-// NE_STAGE.stage.on('mouseup', (e) =>{
-//     NE_STAGE.nodeUpdateState();
-// });
+NE_STAGE.stage.on('mouseup', (e) =>{
+    switch(NE_STAGE.dragState){
+        case DragState.CONNECT:
+            
+        default:
+    }
+    NE_STAGE.dragState = DragState.NONE;
+});
 NE_STAGE.stage.on('dragmove', (e) => {
     if (!stageLeftButton) {
         const pointerpos = NE_STAGE.stage.pointerPos;
@@ -91,8 +97,8 @@ NE_STAGE.stage.on('click', (e) => {
     if (isRight) {
         var pos = { x: 0, y: 0 };
         pos = NE_STAGE.stage.getPointerPosition()!;
-        pos.x += NE_STAGE.stage.position().x;
-        pos.y += NE_STAGE.stage.position().y;
+        pos.x -= NE_STAGE.stage.position().x;
+        pos.y -= NE_STAGE.stage.position().y;
         NE_STAGE.newNode({
             type: 0,
             x: pos?.x,

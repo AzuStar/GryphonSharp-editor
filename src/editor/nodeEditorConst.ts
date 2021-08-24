@@ -43,6 +43,5 @@ export const NE_BODY_PANEL_OPACITY = 1;//0.4;
 
 export const NE_STAGE : EditorStage = new EditorStage();
 
-// For debugging purposes
 //@ts-ignore
-window.consts = this;
+window.dbg_stage = NE_STAGE;
