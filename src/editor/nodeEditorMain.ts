@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { NE_PANEL_WIDTH, NE_CONTEXT_HEADER_PAD, NE_CONTEXT_ELEMNT_PAD, NE_METHOD_TXT_FONT_SIZE, NE_SCALE_STRENGTH, NE_STAGE, NE_FONT_FAMILY } from './nodeEditorConst';
 import { DragState } from './nodeEditorHostDef';
+import { Utils } from './utils';
 import { VSCShell } from './vscShell';
 
 // main entry point
@@ -72,10 +73,10 @@ NE_STAGE.stage.on('mousedown', (e) => {
     stageLeftButton = e.evt.button == 0;
     NE_STAGE.stage.draggable(!stageLeftButton);
 });
-NE_STAGE.stage.on('mouseup', (e) =>{
-    switch(NE_STAGE.dragState){
+NE_STAGE.stage.on('mouseup', (e) => {
+    switch (NE_STAGE.dragState) {
         case DragState.CONNECT:
-            
+            NE_STAGE.connectorDragLine?.destroy();
         default:
     }
     NE_STAGE.dragState = DragState.NONE;
@@ -87,7 +88,15 @@ NE_STAGE.stage.on('dragmove', (e) => {
             // NE_STAGE.state.schema.bgPos = [pointerpos.x, pointerpos.y];
             NE_STAGE.stage.container().style.backgroundPosition = `${pointerpos.x}px ${pointerpos.y}px`;
         }
+    }
+});
 
+NE_STAGE.stage.on('mousemove', (e)=>{
+    if(stageLeftButton){
+        if(NE_STAGE.overConnector){
+        const mousepos = NE_STAGE.stage.pointerPos!;
+        NE_STAGE.connectorDragLine?.points(Utils.getConnectorPoints(NE_STAGE.overConnector.absolutePosition(), mousepos));
+        }
     }
 });
 
@@ -108,8 +117,8 @@ NE_STAGE.stage.on('click', (e) => {
 });
 
 window.onresize = () => {
-NE_STAGE.stage.width(window.innerWidth);
-NE_STAGE.stage.height(window.innerHeight);
+    NE_STAGE.stage.width(window.innerWidth);
+    NE_STAGE.stage.height(window.innerHeight);
 }
 
 // var filename = new Konva.Text({
@@ -122,4 +131,4 @@ NE_STAGE.stage.height(window.innerHeight);
 // });
 
 // Client finished setting up
-VSCShell.sendReady()
+VSCShell.sendReady();

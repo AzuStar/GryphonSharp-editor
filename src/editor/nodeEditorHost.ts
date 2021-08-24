@@ -3,6 +3,7 @@ import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL
 import { EditorState, NodeSignature } from "./nodeEditorStateDef";
 import { DragState, INodeEditor } from "./nodeEditorHostDef";
 import { VSCShell } from "./vscShell";
+import { Utils } from "./utils";
 
 
 export class EditorStage implements INodeEditor {
@@ -14,7 +15,9 @@ export class EditorStage implements INodeEditor {
     // code state
     public state: EditorState = new EditorState();
 
-    public dragState : DragState = DragState.NONE;
+    public dragState: DragState = DragState.NONE;
+    public connectorDragLine: Konva.Line | undefined;
+    public overConnector: Konva.Circle | undefined;
 
     constructor() {
         // Ill get back to it
@@ -123,7 +126,6 @@ export class EditorStage implements INodeEditor {
             x: this.state.schema.stagePos[0],
             y: this.state.schema.stagePos[1]
         });
-        this.stage.batchDraw();
     }
     public getState() {
         return JSON.stringify(this.state);
@@ -141,12 +143,12 @@ export class EditorStage implements INodeEditor {
 
 
         this.state.nodes[nodeid] = signature;
-        VSCShell.syncData(NE_STAGE.getState());
+        VSCShell.syncData(this.getState());
     }
 
     public newNode(signature: NodeSignature) {
         this.createNode(signature, Object.keys(this.state.nodes).length);
-        VSCShell.syncData(NE_STAGE.getState());
+        VSCShell.syncData(this.getState());
     }
 
     private createNode(signature: NodeSignature, id: number) {
@@ -160,38 +162,31 @@ export class EditorStage implements INodeEditor {
 
         var lineGroup = new Konva.Group();
         node.add(lineGroup);
-        var line: Konva.Line;
-        var overConnector: boolean = false;
 
         node.on('mousedown', (e) => {
             var left = e.evt.button == 0;
-            if (overConnector) {
+            if (this.overConnector) {
                 this.dragState = DragState.CONNECT;
                 node.draggable(false);
-                line = new Konva.Line({
-                    points: [0, 200],
+                this.connectorDragLine = new Konva.Line({
                     fill: 'black',
-                    stroke: 'red'
+                    stroke: 'red',
                 });
-                this.nodeLayer.add(line);
-                line.draw();
+                this.nodeLayer.add(this.connectorDragLine);
             } else
                 node.draggable(left);
         });
         node.on('mouseup', (e) => {
-            if (overConnector) {
-                console.log(line);
+            if (this.overConnector) {
+                console.log(this.connectorDragLine);
 
             }
             else {
-                console.log(line);
             }
-            console.log("mouse up!");
         });
         node.on('dragend', (e) => {
             node.zIndex(0);
-            NE_STAGE.updateNodeState(node);
-            console.log();
+            this.updateNodeState(node);
         });
         node.on('dragstart', (e) => {
             node.zIndex(8);
@@ -298,11 +293,11 @@ export class EditorStage implements INodeEditor {
                 });
                 yOffset += NE_CONNECTOR_RADIUS * 2 + NE_CONNECTOR_PAD_TOP;
                 connectorCircle.on('mouseover', (e) => {
-                    overConnector = true;
+                    this.overConnector = connectorCircle;
                 });
-                connectorCircle.on('mouseout', (e) => {
-                    overConnector = false;
-                });
+                // connectorCircle.on('mouseout', (e) => {
+                //     this.overConnector = undefined;
+                // });
 
                 connectorGroup.add(connectorCircle);
                 connectorGroup.add(connectorText);
