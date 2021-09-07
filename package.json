@@ -2,7 +2,7 @@
 	"name": "gryphonsharp-vscode",
 	"displayName": "G# vscode",
 	"description": "Gryphon# visual editor",
-	"version": "1.0.1",
+	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.48.0"
 	},
