@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { NE_PANEL_WIDTH, NE_CONTEXT_HEADER_PAD, NE_CONTEXT_ELEMNT_PAD, NE_METHOD_TXT_FONT_SIZE, NE_SCALE_STRENGTH, NE_STAGE, NE_FONT_FAMILY } from './nodeEditorConst';
-import { DragState } from './nodeEditorHostDef';
+import { DragState } from './Definitions/editorHostAPI';
 import { Utils } from './utils';
 import { VSCShell } from './vscShell';
 
@@ -39,8 +39,8 @@ NE_STAGE.stage.on('wheel', (e) => {
     var pointer = NE_STAGE.stage.getPointerPosition();
     if (pointer != null) {
         var mousePointTo = {
-            x: (pointer.x - NE_STAGE.stage.x()) / oldScale,
-            y: (pointer.y - NE_STAGE.stage.y()) / oldScale,
+            x: (pointer.x) / oldScale,
+            y: (pointer.y) / oldScale,
         };
 
         var newScale;
@@ -63,11 +63,12 @@ NE_STAGE.stage.on('wheel', (e) => {
         NE_STAGE.stage.position(newPos);
 
     }
-    NE_STAGE.stage.batchDraw();
+    // NE_STAGE.stage.batchDraw();
 });
 // Safer & easier to implement custom contexmenu
 NE_STAGE.stage.on('contextmenu', (e) => {
     e.evt.preventDefault();
+    NE_STAGE.contextMenu.visible(true);
 });
 NE_STAGE.stage.on('mousedown', (e) => {
     stageLeftButton = e.evt.button == 0;
@@ -77,12 +78,13 @@ NE_STAGE.stage.on('mouseup', (e) => {
     switch (NE_STAGE.dragState) {
         case DragState.CONNECT:
             NE_STAGE.connectorDragLine?.destroy();
-        default:
+            NE_STAGE.connectorDragSource = undefined;
     }
-    NE_STAGE.dragState = DragState.NONE;
+    NE_STAGE.dropDragState();
 });
 NE_STAGE.stage.on('dragmove', (e) => {
     if (!stageLeftButton) {
+        // this does not need to be anything else
         const pointerpos = NE_STAGE.stage.pointerPos;
         if (pointerpos != null) {
             // NE_STAGE.state.schema.bgPos = [pointerpos.x, pointerpos.y];
@@ -93,9 +95,9 @@ NE_STAGE.stage.on('dragmove', (e) => {
 
 NE_STAGE.stage.on('mousemove', (e)=>{
     if(stageLeftButton){
-        if(NE_STAGE.overConnector){
-        const mousepos = NE_STAGE.stage.pointerPos!;
-        NE_STAGE.connectorDragLine?.points(Utils.getConnectorPoints(NE_STAGE.overConnector.absolutePosition(), mousepos));
+        if(NE_STAGE.connectorDragSource){
+        // const mousepos = NE_STAGE.getMousePositionVec();
+        // NE_STAGE.connectorDragLine?.points(Utils.getConnectorPoints(NE_STAGE.getRelativePosition(NE_STAGE.connectorDragSource.position()), mousepos));
         }
     }
 });
@@ -104,15 +106,16 @@ NE_STAGE.stage.on('click', (e) => {
     var isRight = e.evt.button == 2;
 
     if (isRight) {
-        var pos = { x: 0, y: 0 };
-        pos = NE_STAGE.stage.getPointerPosition()!;
-        pos.x -= NE_STAGE.stage.position().x;
-        pos.y -= NE_STAGE.stage.position().y;
-        NE_STAGE.newNode({
-            type: 0,
-            x: pos?.x,
-            y: pos?.y,
-        });
+
+        // var pos = { x: 0, y: 0 };
+        // pos = NE_STAGE.stage.getPointerPosition()!;
+        // pos.x -= NE_STAGE.stage.position().x;
+        // pos.y -= NE_STAGE.stage.position().y;
+        // NE_STAGE.newNode({
+        //     type: 0,
+        //     x: pos?.x,
+        //     y: pos?.y,
+        // });
     }
 });
 

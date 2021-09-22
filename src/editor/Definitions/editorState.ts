@@ -1,3 +1,5 @@
+import { Vector2d } from "konva/lib/types";
+
 export class NodeSignature {
 
     //#region Non-nulls
@@ -24,15 +26,17 @@ export class EditorSchema {
     nodeCount!: number;
     dataCount!: number;
     bgSizes!: [number, number];
-    stagePos!: [number, number];
+    stagePos!: Vector2d;
+
 }
 export class EditorState {
     schema: EditorSchema = {
         nodeCount: 0,
         dataCount: 0,
         bgSizes: [100, 20],
-        stagePos: [0, 0]
+        stagePos: { x: 0, y: 0 },
     };
     nodes: { [id: string]: NodeSignature; } = {};
     datas: { [id: string]: DataSignature } = {};
+    
 }

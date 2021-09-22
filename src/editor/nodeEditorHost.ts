@@ -1,9 +1,10 @@
 import Konva from "konva";
-import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_PAD_TOP, NE_CONNECTOR_RADIUS, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_CONTEXT_ELEMNT_PAD, NE_CONTEXT_HEADER_PAD, NE_FONT_FAMILY, NE_METHOD_PANEL_OPACITY, NE_METHOD_TXT_FONT_SIZE, NE_METHOD_TXT_PAD_BOT, NE_METHOD_TXT_PAD_LEFT, NE_PANEL_WIDTH, NE_STAGE } from "./nodeEditorConst";
-import { EditorState, NodeSignature } from "./nodeEditorStateDef";
-import { DragState, INodeEditor } from "./nodeEditorHostDef";
+import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_PAD_TOP, NE_CONNECTOR_RADIUS, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_CONTEXT_ELEMNT_PAD, NE_CONTEXT_HEADER_PAD, NE_FONT_FAMILY, NE_METHOD_PANEL_OPACITY, NE_METHOD_TXT_FONT_SIZE, NE_METHOD_TXT_PAD_BOT, NE_METHOD_TXT_PAD_LEFT, NE_PANEL_WIDTH } from "./nodeEditorConst";
+import { EditorState, NodeSignature } from "./Definitions/editorState";
+import { DragState, FocusState, INodeEditor } from "./Definitions/editorHostAPI";
 import { VSCShell } from "./vscShell";
 import { Utils } from "./utils";
+import { Vector2d } from "konva/lib/types";
 
 
 export class EditorStage implements INodeEditor {
@@ -11,34 +12,37 @@ export class EditorStage implements INodeEditor {
         container: 'editor-main',
         draggable: true,
     });
+    public contextMenu = new Konva.Group({
+        width: NE_PANEL_WIDTH,
+        height: NE_PANEL_WIDTH * 2,
+        // visible: false
+    });
     private nodeLayer = new Konva.Layer();
     // code state
     public state: EditorState = new EditorState();
 
+    public focusState: FocusState = FocusState.NONE;
     public dragState: DragState = DragState.NONE;
+    // Vars for dragging
     public connectorDragLine: Konva.Line | undefined;
     public overConnector: Konva.Circle | undefined;
+    public connectorDragSource: Konva.Circle | undefined;
 
     constructor() {
         // Ill get back to it
         //#region Context Menu
-        // var ContextMenu = new Konva.Group({
-        //     width: NE_PANEL_WIDTH,
-        //     height: NE_PANEL_WIDTH * 2,
-        //     // visible: false
-        // });
 
         // var elementList = new Konva.Group({
-        //     width: ContextMenu.width(),
-        //     height: ContextMenu.width() * 2 - NE_CONTEXT_HEADER_PAD,
+        //     width: this.contextMenu.width(),
+        //     height: this.contextMenu.width() * 2 - NE_CONTEXT_HEADER_PAD,
         //     y: NE_CONTEXT_HEADER_PAD
         // });
 
-        // ContextMenu.add(elementList);
+        // this.contextMenu.add(elementList);
 
         // var element1 = new Konva.Text({
         //     y: NE_CONTEXT_ELEMNT_PAD,
-        //     text: 'Output',
+        //     text: 'New Call',
         //     fontSize: NE_METHOD_TXT_FONT_SIZE,
         //     fontFamily: 'Calibri',
         //     align: 'left',
@@ -47,16 +51,20 @@ export class EditorStage implements INodeEditor {
         //     width: NE_PANEL_WIDTH,
         //     height: NE_CONTEXT_HEADER_PAD,
         //     wrap: 'none'
-
         // });
 
         // elementList.add(element1);
+        // this.nodeLayer.add(this.contextMenu);
         //#endregion
+
+
+        // Internal finalized events
         this.stage.add(this.nodeLayer);
         this.stage.on('dragend', (e) => {
-            this.state.schema.stagePos = [this.stage.position().x, this.stage.position().y];
+            this.state.schema.stagePos = this.stage.position();
             VSCShell.syncData(this.getState());
         });
+        this.nodeLayer.add(this.contextMenu);
         VSCShell.eventSyncHandler = (msg) => {
             if (msg.data != null)
                 try {
@@ -64,56 +72,10 @@ export class EditorStage implements INodeEditor {
                 } catch (err) {
                     console.error(err);
                 }
-            // try {
-            //     this.setState(JSON.parse(msg.data, (key, val) => {
-            //         switch (key) {
-            //             case 'inputs':
-            //             case 'outputs':
-            //             case 'schema':
-            //             case 'bgSizes':
-            //             case 'bgPos':
-            //             case 'nodes':
-            //             case 'datas':
-            //                 if (typeof val == "object") {
-            //                     return val;
-            //                 }
-            //                 else throw ("Document parsing error object-" + typeof val);
-            //             case 'x':
-            //             case 'y':
-            //             case 'type':
-            //             case 'execution':
-            //             case 'nodeCount':
-            //             case 'dataCount':
-            //                 if (typeof val == "number")
-            //                     return val;
-            //                 else throw ("Document parsing error number-" + typeof val);
-            //             case 'reference':
-            //             case 'target':
-            //             case 'name':
-            //                 if (typeof val == "string") {
-            //                     return val;
-            //                 } else throw ("Document parsing error string-" + typeof val);
-            //             case 'undefined':
-            //             case 'NaN':
-            //                 // strip restricted keys
-            //                 //
-            //                 // not returning from reviver
-            //                 // drops value and key
-            //                 break;
-            //             default:
-            //                 if (typeof parseInt(key) != "number") {
-            //                     console.warn("Unidentified symbol:" + key);
-            //                 }
-            //                 return val;
-            //         }
-            //     }));
-            // } catch (error) {
-            //     console.error(error);
-            // }
             else console.log("Initializing new document...");
         };
     }
-
+    //#region State Functions
     public setState(jsonState: object) {
         this.state = new EditorState();
         //@ts-ignore
@@ -145,10 +107,55 @@ export class EditorStage implements INodeEditor {
         this.state.nodes[nodeid] = signature;
         VSCShell.syncData(this.getState());
     }
-
+    //#endregion
+    //#region INode API
     public newNode(signature: NodeSignature) {
         this.createNode(signature, Object.keys(this.state.nodes).length);
         VSCShell.syncData(this.getState());
+    }
+
+
+    public getMousePosition(): Vector2d {
+        var vect = this.stage.getPointerPosition()!;
+        vect.x -= this.stage.position().x;
+        vect.y -= this.stage.position().y;
+        return vect;
+    }
+    public getRelativePosition(vec: Vector2d): Vector2d {
+        vec.x -= this.stage.position().x;
+        vec.y -= this.stage.position().y;
+        return vec;
+    }
+    //#endregion
+
+    public dropFocusState() {
+        if (this.focusState == FocusState.NONE)
+            return;
+
+        switch (this.focusState) {
+            case FocusState.CONTEXT:
+
+        }
+        this.focusState = FocusState.NONE;
+    }
+
+    public dropDragState() {
+
+    }
+    //#region Privates
+    private deserializeRecursive(objLock: object, json: object): object {
+        if (objLock == undefined) { // merge non existing keys
+            objLock = json;
+            return objLock
+        }
+        for (var prop in json) {
+            if (typeof json[prop] == 'object') {
+                objLock[prop] = this.deserializeRecursive(objLock[prop], json[prop]);
+            } else if (typeof objLock[prop] == typeof json[prop]) {
+                objLock[prop] = json[prop]
+            }
+        }
+        return objLock;
     }
 
     private createNode(signature: NodeSignature, id: number) {
@@ -160,19 +167,21 @@ export class EditorStage implements INodeEditor {
             draggable: true,
         });
 
-        var lineGroup = new Konva.Group();
-        node.add(lineGroup);
+        // var lineGroup = new Konva.Group();
+        // node.add(lineGroup);
 
         node.on('mousedown', (e) => {
             var left = e.evt.button == 0;
+            this.dropFocusState();
+            this.dropDragState();
             if (this.overConnector) {
                 this.dragState = DragState.CONNECT;
                 node.draggable(false);
                 this.connectorDragLine = new Konva.Line({
-                    fill: 'black',
-                    stroke: 'red',
+                    stroke: 'black',
                 });
                 this.nodeLayer.add(this.connectorDragLine);
+                this.connectorDragSource = this.overConnector;
             } else
                 node.draggable(left);
         });
@@ -363,21 +372,9 @@ export class EditorStage implements INodeEditor {
         this.nodeLayer.add(node)
 
     }
+    //#endregion
 
-    private deserializeRecursive(objLock: object, json: object): object {
-        if (objLock == undefined) { // merge non existing keys
-            objLock = json;
-            return objLock
-        }
-        for (var prop in json) {
-            if (typeof json[prop] == 'object') {
-                objLock[prop] = this.deserializeRecursive(objLock[prop], json[prop]);
-            } else if (typeof objLock[prop] == typeof json[prop]) {
-                objLock[prop] = json[prop]
-            }
-        }
-        return objLock;
-    }
+
 
 
 }
