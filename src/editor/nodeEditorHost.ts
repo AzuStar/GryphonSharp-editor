@@ -61,8 +61,6 @@ export class EditorStage implements INodeEditor {
         // Internal finalized events
         this.stage.add(this.nodeLayer);
         this.stage.on('dragend', (e) => {
-            this.state.schema.stagePos = this.stage.position();
-            VSCShell.syncData(this.getState());
         });
         this.nodeLayer.add(this.contextMenu);
         VSCShell.eventSyncHandler = (msg) => {
@@ -84,10 +82,6 @@ export class EditorStage implements INodeEditor {
         for (const id in this.state.nodes) {
             this.createNode(this.state.nodes[id], parseInt(id));
         }
-        this.stage.position({
-            x: this.state.schema.stagePos[0],
-            y: this.state.schema.stagePos[1]
-        });
     }
     public getState() {
         return JSON.stringify(this.state);

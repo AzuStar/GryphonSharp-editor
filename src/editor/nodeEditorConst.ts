@@ -42,6 +42,6 @@ export const NE_BODY_PANEL_COLOR = '#ffffff';
 export const NE_BODY_PANEL_OPACITY = 1;//0.4;
 
 export const NE_STAGE : EditorStage = new EditorStage();
-
+// Expose variables to console through this
 //@ts-ignore
 window.dbg_stage = NE_STAGE;

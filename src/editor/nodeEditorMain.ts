@@ -21,7 +21,7 @@ NE_STAGE.stage.height(window.innerHeight);
 
 NE_STAGE.stage.container().style.backgroundImage = "linear-gradient(rgba(255,255,255,0.2) 1.3px, transparent 2px),linear-gradient(90deg, rgba(255,255,255,0.2) 1.3px, transparent 1px),linear-gradient(rgba(255,255,255,0.1) 0.8px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.1) 0.8px, transparent 1px)";
 
-NE_STAGE.stage.container().style.backgroundSize = `${NE_STAGE.state.schema.bgSizes[0]}px ${NE_STAGE.state.schema.bgSizes[0]}px, ${NE_STAGE.state.schema.bgSizes[0]}px ${NE_STAGE.state.schema.bgSizes[0]}px, ${NE_STAGE.state.schema.bgSizes[1]}px ${NE_STAGE.state.schema.bgSizes[1]}px, ${NE_STAGE.state.schema.bgSizes[1]}px ${NE_STAGE.state.schema.bgSizes[1]}px`;
+NE_STAGE.stage.container().style.backgroundSize = `999px 200px, 200px 999px, 999px 40px, 40px 999px`;
 
 NE_STAGE.stage.container().style.backgroundPosition = `0px 0px`;
 
@@ -34,7 +34,6 @@ NE_STAGE.stage.draw();
 NE_STAGE.stage.on('wheel', (e) => {
     e.evt.preventDefault();
     var oldScale = NE_STAGE.stage.scaleX();
-    var oldScaleBG: [number, number] = NE_STAGE.state.schema.bgSizes;
 
     var pointer = NE_STAGE.stage.getPointerPosition();
     if (pointer != null) {
@@ -44,23 +43,22 @@ NE_STAGE.stage.on('wheel', (e) => {
         };
 
         var newScale;
-        var newScaleBG: [number, number];
         if (e.evt.deltaY > 0) {
             newScale = oldScale / NE_SCALE_STRENGTH;
-            newScaleBG = [oldScaleBG[0] / NE_SCALE_STRENGTH, oldScaleBG[1] / NE_SCALE_STRENGTH];
         } else {
             newScale = oldScale * NE_SCALE_STRENGTH;
-            newScaleBG = [oldScaleBG[0] * NE_SCALE_STRENGTH, oldScaleBG[1] * NE_SCALE_STRENGTH];
         }
 
         NE_STAGE.stage.scale({ x: newScale, y: newScale });
-        // NE_STAGE.container().style.backgroundSize = `${newScaleBG[0]}px ${newScaleBG[0]}px, ${NE_STAGE.state.schema.bgSizes[0]}px ${NE_STAGE.state.schema.bgSizes[0]}px, ${NE_STAGE.state.schema.bgSizes[1]}px ${NE_STAGE.state.schema.bgSizes[1]}px, ${newScaleBG[1]}px ${newScaleBG[1]}px`;
+        // NE_STAGE.container().style.backgroundSize = `${newScaleBG[0]}px ${newScaleBG[0]}px, 100px 100px, 20px 20px, ${newScaleBG[1]}px ${newScaleBG[1]}px`;
+        NE_STAGE.stage.container().style.backgroundSize = `999px ${200*newScale}px, ${200*newScale}px 999px, 999px ${40*newScale}px, ${40*newScale}px 999px`;
 
         var newPos = {
             x: pointer.x - mousePointTo.x * newScale,
             y: pointer.y - mousePointTo.y * newScale,
         };
         NE_STAGE.stage.position(newPos);
+        // NE_STAGE.stage.container().style.backgroundPosition = `${newPos.x}px ${newPos.y}px`;
 
     }
     // NE_STAGE.stage.batchDraw();
