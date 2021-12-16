@@ -13,6 +13,7 @@ Instructs NodeEditor to refresh contents of the document. This is used when docu
 If data is null or undefined, editor will assume new file, broken files are not properly accounted for.
 
 #### Alternative implementation (less effecient)
+
 > All commands prefixed 'editor-'
 1. `editor-load`
 ```
