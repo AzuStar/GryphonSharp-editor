@@ -43,7 +43,10 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
         webviewPanel.webview.options = {
             enableScripts: true,
-            localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'webStatic'), vscode.Uri.joinPath(this.context.extensionUri, 'out', 'editor')]
+            localResourceRoots: [
+                vscode.Uri.joinPath(this.context.extensionUri, 'webStatic'),
+                vscode.Uri.joinPath(this.context.extensionUri, 'out', 'editor')
+            ]
         };
 
         webviewPanel.webview.html = this.GenerateWebview(webviewPanel.webview, this.context);
@@ -88,7 +91,7 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
         //     });
         // }
 
-        webviewPanel.webview.onDidReceiveMessage(message => {
+        const messageListener = webviewPanel.webview.onDidReceiveMessage(message => {
             messageHandler(message);
         }, undefined, this.context.subscriptions);
 
@@ -99,9 +102,8 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
             }
         });
 
-        const syncWorkbenchChangesSubscription = vscode.workspace.onDidChangeTextDocument(e=>{
-            if(e.document.uri.toString() == document.uri.toString())
-            {
+        const syncWorkbenchChangesSubscription = vscode.workspace.onDidChangeTextDocument(e => {
+            if (e.document.uri.toString() == document.uri.toString()) {
                 syncDocument(document);
             }
         });
@@ -110,21 +112,17 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
         webviewPanel.onDidDispose(() => {
             syncSaveChangesSubscription.dispose();
             syncWorkbenchChangesSubscription.dispose();
+            messageListener.dispose();
         });
 
-
-
-
-
-
     }
-
-    // private updateTextDocument(document: vscode.TextDocument, ){
-    // }
 
     scriptsPath: string;
     cssPath: string;
 
+    // Build the page every time it is requested (for now), probably should change to debug/release version
+    // debug will always recompile the page
+    // release will always have precompiled webview
     GenerateWebview(webview: vscode.Webview, context: vscode.ExtensionContext): string {
         var css: string[] = [];
         const nonce = NodeEditorProvider.getNonce();
