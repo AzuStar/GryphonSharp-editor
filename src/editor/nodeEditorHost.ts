@@ -76,11 +76,11 @@ export class EditorStage implements INodeEditor {
     //#region State Functions
     public setState(jsonState: object) {
         this.state = new EditorState();
-        //@ts-ignore
+        // @ts-ignore
         this.state = this.deserializeRecursive(this.state, jsonState);
         this.nodeLayer.destroyChildren();
-        for (const id in this.state.nodes) {
-            this.createNode(this.state.nodes[id], parseInt(id));
+        for (const id in this.state.codeNodes) {
+            this.createNode(this.state.codeNodes[id], parseInt(id));
         }
     }
     public getState() {

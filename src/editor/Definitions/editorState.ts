@@ -1,12 +1,20 @@
-import { Vector2d } from "konva/lib/types";
-
+export enum CodeNodeType {
+    executionEnter = 0,
+    invokeInstanceCall = 1,
+    primitiveValue = 2,
+    invokeStaticCall = 3,
+    invokeOperatorCall = 4,
+    loop = 5,
+    branch = 6,
+    executionExit = 100,
+}
 export class NodeSignature {
-
-    //#region Non-nulls
     x!: number;
     y!: number;
-    type!: number;
-    //#endregion
+    type!: CodeNodeType;
+
+    // not null when type is primitiveValue 
+    dataReference?: number;
     reference?: string;
     target?: string;
     execution?: number
@@ -19,20 +27,15 @@ export class ConnectorSignature {
 
 }
 export class DataSignature {
-    dataType!: string;
-
+    type!: number;
+    value!: string;
 }
 export class EditorSchema {
-    nodeCount!: number;
-    dataCount!: number;
-
 }
 export class EditorState {
     schema: EditorSchema = {
-        nodeCount: 0,
-        dataCount: 0,
     };
-    nodes: { [id: string]: NodeSignature; } = {};
-    datas: { [id: string]: DataSignature } = {};
-    
+    codeNodes: { [id: string]: NodeSignature; } = {};
+    dataNodes: { [id: string]: DataSignature } = {};
+
 }
