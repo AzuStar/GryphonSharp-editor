@@ -10,9 +10,7 @@ export enum CodeNodeType {
     branch = 6,
     executionExit = 100,
 }
-export class NodeSignature extends JSONData {
-    @JsonIgnore
-    id!: number;
+export class CodeSignature extends JSONData {
     x!: number;
     y!: number;
     type!: CodeNodeType;
@@ -31,8 +29,6 @@ export class ConnectorSignature extends JSONData {
     dataReference!: number;
 }
 export class DataSignature extends JSONData {
-    @JsonIgnore
-    id!: number;
     type!: number;
     value!: string | number | boolean;
 }
@@ -41,7 +37,7 @@ export class EditorSchema extends JSONData {
 }
 export class EditorState extends JSONData {
     schema: EditorSchema = new EditorSchema();
-    codeNodes: { [id: string]: NodeSignature; } = {};
+    codeNodes: { [id: string]: CodeSignature; } = {};
     dataNodes: { [id: string]: DataSignature } = {};
 
 }

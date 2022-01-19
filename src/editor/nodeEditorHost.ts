@@ -1,6 +1,6 @@
 import Konva from "konva";
 import { NE_BODY_PANEL_COLOR, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_PAD_TOP, NE_CONNECTOR_RADIUS, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_CONTEXT_ELEMNT_PAD, NE_CONTEXT_HEADER_PAD, NE_FONT_FAMILY, NE_METHOD_PANEL_OPACITY, NE_METHOD_TXT_FONT_SIZE, NE_METHOD_TXT_PAD_BOT, NE_METHOD_TXT_PAD_LEFT, NE_PANEL_WIDTH, NE_STAGE } from "./nodeEditorConst";
-import { CodeNodeType, EditorState, NodeSignature } from "./Definitions/rawEditorState";
+import { CodeNodeType, EditorState, CodeSignature } from "./Definitions/rawEditorState";
 import { DragState, FocusState, INodeEditor } from "./Definitions/editorHostAPI";
 import { VSCShell } from "./vscShell";
 import { Utils } from "./utils";
@@ -8,7 +8,6 @@ import { Vector2d } from "konva/lib/types";
 import { Node } from "konva/lib/Node";
 import { Shape } from "konva/lib/Shape";
 import { Text } from "konva/lib/shapes/Text";
-import { NENode } from "./Definitions/editorNode";
 import { CodeNodeFactory } from "./Factories/codeNodeFactory";
 import { EditorStateWrapper } from "./Definitions/editorStateWrapper";
 
@@ -85,29 +84,22 @@ export class EditorStage implements INodeEditor {
             else console.log("Initializing new document...");
         };
     }
-    destroyNode(id: number): void;
-    destroyNode(signature: NodeSignature): void;
-    destroyNode(arg: number | NodeSignature): void{
-        if(typeof arg == "number"){
-            this.state.destroyCodeNode(arg);
-        }else{
-            this.state.destroyCodeNode(arg.id);
-        }
+    public destroyNode(id: number): void {
+        this.state.destroyCodeNode(id);
     }
     //#region State Functions
     public setState(jsonState: object) {
         this.state = new EditorStateWrapper(jsonState);
 
         this.nodeLayer.destroyChildren();
+        this.connectionLayer.destroyChildren();
 
         this.state.constructCodeNodes(this.nodeFactory, this);
     }
     //#endregion
     //#region INode API
-    public newNode(signature: NodeSignature): void {
-        var highestIndex = this.state.getHighestCodeIndex();
-        var node = this.nodeFactory.createNode(signature, this);
-        this.state.setCodeNode(node.numbericId, signature);
+    public newNode(signature: CodeSignature): void {
+        this.state.newCodeNode(signature, this.nodeFactory, this);
     }
 
     public getMousePosition(): Vector2d {

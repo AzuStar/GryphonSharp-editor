@@ -1,6 +1,5 @@
-import { CodeNodeType, NodeSignature } from "../Definitions/rawEditorState";
+import { CodeNodeType, CodeSignature } from "../Definitions/rawEditorState";
 import { EditorStage } from "../nodeEditorHost";
-import { NENode } from "../Definitions/editorNode";
 import Konva from "konva";
 import { NE_CONNECTOR_PAD_TOP, NE_METHOD_TXT_FONT_SIZE, NE_FONT_FAMILY, NE_METHOD_TXT_PAD_LEFT, NE_PANEL_WIDTH, NE_METHOD_TXT_PAD_BOT, NE_BODY_PANEL_COLOR, NE_METHOD_PANEL_OPACITY, NE_CONNECTOR_RADIUS, NE_BODY_PANEL_OPACITY, NE_CONNECTOR_PAD_HORIZONTAL, NE_CONNECTOR_TXT_FONT_SIZE, NE_CONNECTOR_TXT_WIDTH, NE_STAGE } from "../nodeEditorConst";
 import { VSCShell } from "../vscShell";
@@ -8,17 +7,16 @@ import { DragState } from "../Definitions/editorHostAPI";
 
 export abstract class ICodeNodeFactory {
 
-    public abstract createNode(signature: NodeSignature, editor: EditorStage): NENode;
+    public abstract createNode(signature: CodeSignature, editor: EditorStage, id: number) : void;
 
 }
 
 export class CodeNodeFactory extends ICodeNodeFactory {
-    public createNode(signature: NodeSignature, editor: EditorStage): NENode {
+    public createNode(signature: CodeSignature, editor: EditorStage, id: number) {
 
-        var nodeMaster = new NENode(signature.id);
 
         var nodeGroup = new Konva.Group({
-            id: nodeMaster.konvaId,
+            id: "node-"+id,
             x: signature.x,
             y: signature.y,
             draggable: true,
@@ -54,13 +52,13 @@ export class CodeNodeFactory extends ICodeNodeFactory {
         });
         nodeGroup.on('dragend', (e) => {
             // DEBUG_FLAG
-            const node = editor.state.getCodeNodeById(signature.id);
+            const node = editor.state.getCodeNodeById(id);
 
             // what changed after drag
             node.x = nodeGroup.x();
             node.y = nodeGroup.y();
-            
-            editor.state.setCodeNode(signature.id, node);
+
+            editor.state.setCodeNode(id, node);
         });
         nodeGroup.on('dragstart', (e) => {
             nodeGroup.zIndex(3);
@@ -151,7 +149,7 @@ export class CodeNodeFactory extends ICodeNodeFactory {
                     offsetY: 0,
                 });
 
-                bodyGroup.add(executionInConnector);
+                // bodyGroup.add(executionInConnector);
 
                 if (signature.inputs != null) {
                     var connectorCircle: Konva.Circle, yOffset = NE_CONNECTOR_PAD_TOP, connectorText: Konva.Text;
@@ -257,7 +255,7 @@ export class CodeNodeFactory extends ICodeNodeFactory {
                     y: NE_CONNECTOR_PAD_TOP * 2,
                     x: NE_PANEL_WIDTH - NE_CONNECTOR_PAD_HORIZONTAL,
                 });
-                var data = editor.state.getCreatedDataNode(signature.id);
+                var data = editor.state.getCreatedDataNode(id);
                 var connectorValue!: Konva.Text;
                 if (typeof data.value == 'string') {
                     connectorValue = new Konva.Text({
@@ -281,37 +279,39 @@ export class CodeNodeFactory extends ICodeNodeFactory {
                         // how to find it?
 
                         // at first lets find position of text node relative to the stage:
-                        var textPosition = connectorValue.getAbsolutePosition();
+                        // var textPosition = connectorValue.getAbsolutePosition();
 
-                        var areaPosition = {
-                            x: textPosition.x,
-                            y: textPosition.y,
-                        };
+                        // var areaPosition = {
+                        //     x: textPosition.x,
+                        //     y: textPosition.y,
+                        // };
 
-                        // create textarea and style it
-                        var textarea = document.createElement('textarea');
-                        document.body.appendChild(textarea);
+                        // // create textarea and style it
+                        // var textarea = document.createElement('textarea');
+                        // document.body.appendChild(textarea);
 
-                        textarea.value = connectorValue.text();
-                        textarea.style.position = 'absolute';
-                        textarea.style.top = (areaPosition.y - 2) + 'px';
-                        textarea.style.left = (areaPosition.x - 2) + 'px';
-                        textarea.style.width = connectorValue.width().toString();
+                        // textarea.value = connectorValue.text();
+                        // textarea.style.position = 'absolute';
+                        // textarea.style.top = (areaPosition.y - 2) + 'px';
+                        // textarea.style.left = (areaPosition.x - 2) + 'px';
+                        // textarea.style.width = connectorValue.width().toString();
 
-                        textarea.focus();
+                        // textarea.focus();
 
-                        textarea.addEventListener('keydown', function (e) {
-                            // hide on enter
-                            if (e.key === 'Enter' || e.key === 'Escape') {
-                                connectorValue.text(textarea.value);
+                        // textarea.addEventListener('keydown', function (e) {
+                        //     // hide on enter
+                        //     if (e.key === 'Enter' || e.key === 'Escape') {
+                        //         connectorValue.text(textarea.value);
 
-                                if (textarea.value != connectorValue.text()) {
-                                    editor.state.setCreatedDataNodeValue(signature.id, textarea.value);
-                                }
-                                document.body.removeChild(textarea);
-                            }
+                        //         if (textarea.value != connectorValue.text()) {
+                        //             editor.state.setCreatedDataNodeValue(id, textarea.value);
+                        //         }
+                        //         document.body.removeChild(textarea);
+                        //     }
 
-                        });
+                        // });
+
+                        VSCShell.requestPrimitiveValueInput(signature.dataReference!);
                     });
                 }
                 connectorCircle = new Konva.Circle({
@@ -343,7 +343,6 @@ export class CodeNodeFactory extends ICodeNodeFactory {
         }
 
 
-        return nodeMaster;
     }
 
 }
