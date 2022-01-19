@@ -4,7 +4,7 @@
 ## Schemas
 Collection of schemas for components of node editor communications. This repo will contain all schemas even those used by transpiler and overwatch.
 ### Editor Commands
-> Commands sent by vsc to the editor when update in the filesystem happens.
+> Commands sent by vsc to the editor when update in the filesystem happens.<br>
 > All commands prefixed 'editor-'
 1. `editor-sync`
 ```
