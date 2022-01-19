@@ -38,8 +38,8 @@ NE_STAGE.stage.on('wheel', (e) => {
     var pointer = NE_STAGE.stage.getPointerPosition();
     if (pointer != null) {
         var mousePointTo = {
-            x: (pointer.x) / oldScale,
-            y: (pointer.y) / oldScale,
+            x: (pointer.x - NE_STAGE.stage.x()) / oldScale,
+            y: (pointer.y - NE_STAGE.stage.y()) / oldScale,
         };
 
         var newScale;
@@ -51,7 +51,7 @@ NE_STAGE.stage.on('wheel', (e) => {
 
         NE_STAGE.stage.scale({ x: newScale, y: newScale });
         // NE_STAGE.container().style.backgroundSize = `${newScaleBG[0]}px ${newScaleBG[0]}px, 100px 100px, 20px 20px, ${newScaleBG[1]}px ${newScaleBG[1]}px`;
-        NE_STAGE.stage.container().style.backgroundSize = `999px ${200*newScale}px, ${200*newScale}px 999px, 999px ${40*newScale}px, ${40*newScale}px 999px`;
+        NE_STAGE.stage.container().style.backgroundSize = `999px ${200 * newScale}px, ${200 * newScale}px 999px, 999px ${40 * newScale}px, ${40 * newScale}px 999px`;
 
         var newPos = {
             x: pointer.x - mousePointTo.x * newScale,
@@ -91,11 +91,11 @@ NE_STAGE.stage.on('dragmove', (e) => {
     }
 });
 
-NE_STAGE.stage.on('mousemove', (e)=>{
-    if(stageLeftButton){
-        if(NE_STAGE.connectorDragSource){
-        // const mousepos = NE_STAGE.getMousePositionVec();
-        // NE_STAGE.connectorDragLine?.points(Utils.getConnectorPoints(NE_STAGE.getRelativePosition(NE_STAGE.connectorDragSource.position()), mousepos));
+NE_STAGE.stage.on('mousemove', (e) => {
+    if (stageLeftButton) {
+        if (NE_STAGE.connectorDragSource) {
+            // const mousepos = NE_STAGE.getMousePositionVec();
+            // NE_STAGE.connectorDragLine?.points(Utils.getConnectorPoints(NE_STAGE.getRelativePosition(NE_STAGE.connectorDragSource.position()), mousepos));
         }
     }
 });
@@ -121,15 +121,6 @@ window.onresize = () => {
     NE_STAGE.stage.width(window.innerWidth);
     NE_STAGE.stage.height(window.innerHeight);
 }
-
-// var filename = new Konva.Text({
-//     fontSize: NE_METHOD_TXT_FONT_SIZE,
-//     fontFamily: NE_FONT_FAMILY,
-//     align: 'left',
-//     ellipsis: true,
-//     wrap: 'none',
-//     draggable: false
-// });
 
 // Client finished setting up
 VSCShell.sendReady();

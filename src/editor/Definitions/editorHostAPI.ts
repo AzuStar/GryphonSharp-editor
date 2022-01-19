@@ -1,6 +1,6 @@
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
-import { NodeSignature } from "./editorState";
+import { NodeSignature } from "./rawEditorState";
 
 export interface INodeEditor {
 
