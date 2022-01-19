@@ -4,6 +4,8 @@
 ## Schemas
 Collection of schemas for components of node editor communications. This repo will contain all schemas even those used by transpiler and overwatch.
 ### Editor Commands
+> Commands sent by vsc to the editor when update in the filesystem happens.
+> All commands prefixed 'editor-'
 1. `editor-sync`
 ```
 command: 'editor-sync'
@@ -14,7 +16,7 @@ If data is null or undefined, editor will assume new file, broken files are not 
 
 #### Alternative implementation (less effecient)
 
-> All commands prefixed 'editor-'
+
 1. `editor-load`
 ```
 command: 'editor-load'
@@ -32,6 +34,7 @@ Instructs NodeEditor to refresh contents of the document (keeping history of pre
 If data is null or undefined, editor will assume deletion of the document, but will keep state and mark source as 'deleted/moved'.
 
 ### VSCode Commands
+> Commands sent by the ditor to vsc host <br>
 > All commands prefixed 'vsc-'
 1. `vsc-ready`
 ```
