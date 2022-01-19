@@ -28,7 +28,7 @@ export class ConnectorSignature {
 }
 export class DataSignature {
     type!: number;
-    value!: string;
+    value!: string | number | boolean;
 }
 export class EditorSchema {
 }
