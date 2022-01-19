@@ -9,15 +9,13 @@ export interface INodeEditor {
      */
     newNode(signature: NodeSignature): void;
 
-    /**
-     * Retrieves node state and changes it accordigly.
-     */
-    updateNodeState(nodeGroup: Konva.Group): void;
+    destroyNode(id: number): void;
+    destroyNode(signature: NodeSignature): void;
 
     /**
      * Retrieves mouse position relative to stage.
      */
-     getRelativePosition(vector: Vector2d): Vector2d;
+    getRelativePosition(vector: Vector2d): Vector2d;
     /**
      *  Vector version
      */

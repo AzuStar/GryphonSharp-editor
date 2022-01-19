@@ -8,14 +8,14 @@ import { DragState } from "../Definitions/editorHostAPI";
 
 export abstract class ICodeNodeFactory {
 
-    public abstract createNode(signature: NodeSignature, id: number, editor: EditorStage): NENode;
+    public abstract createNode(signature: NodeSignature, editor: EditorStage): NENode;
 
 }
 
 export class CodeNodeFactory extends ICodeNodeFactory {
-    public createNode(signature: NodeSignature, nodeId: number, editor: EditorStage): NENode {
+    public createNode(signature: NodeSignature, editor: EditorStage): NENode {
 
-        var nodeMaster = new NENode(nodeId);
+        var nodeMaster = new NENode(signature.id);
 
         var nodeGroup = new Konva.Group({
             id: nodeMaster.konvaId,
@@ -54,7 +54,13 @@ export class CodeNodeFactory extends ICodeNodeFactory {
         });
         nodeGroup.on('dragend', (e) => {
             // DEBUG_FLAG
-            // editor.updateNodeState(nodeGroup);
+            const node = editor.state.getCodeNodeById(signature.id);
+
+            // what changed after drag
+            node.x = nodeGroup.x();
+            node.y = nodeGroup.y();
+            
+            editor.state.setCodeNode(signature.id, node);
         });
         nodeGroup.on('dragstart', (e) => {
             nodeGroup.zIndex(3);
@@ -141,8 +147,8 @@ export class CodeNodeFactory extends ICodeNodeFactory {
                     fill: "#000000",
                     closed: true,
                     scale: { x: NE_CONNECTOR_RADIUS * 2, y: NE_CONNECTOR_RADIUS * 2 },
-                    x:NE_CONNECTOR_PAD_HORIZONTAL * 0.5 + NE_CONNECTOR_RADIUS * 2,
-                    offsetY:0,
+                    x: NE_CONNECTOR_PAD_HORIZONTAL * 0.5 + NE_CONNECTOR_RADIUS * 2,
+                    offsetY: 0,
                 });
 
                 bodyGroup.add(executionInConnector);
@@ -251,7 +257,7 @@ export class CodeNodeFactory extends ICodeNodeFactory {
                     y: NE_CONNECTOR_PAD_TOP * 2,
                     x: NE_PANEL_WIDTH - NE_CONNECTOR_PAD_HORIZONTAL,
                 });
-                var data = editor.state.dataNodes[signature.dataReference!];
+                var data = editor.state.getCreatedDataNode(signature.id);
                 var connectorValue!: Konva.Text;
                 if (typeof data.value == 'string') {
                     connectorValue = new Konva.Text({
@@ -300,8 +306,7 @@ export class CodeNodeFactory extends ICodeNodeFactory {
                                 connectorValue.text(textarea.value);
 
                                 if (textarea.value != connectorValue.text()) {
-                                    NE_STAGE.state.dataNodes[signature.dataReference!].value = textarea.value;
-                                    VSCShell.syncData(NE_STAGE.getState());
+                                    editor.state.setCreatedDataNodeValue(signature.id, textarea.value);
                                 }
                                 document.body.removeChild(textarea);
                             }

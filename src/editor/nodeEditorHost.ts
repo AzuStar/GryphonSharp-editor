@@ -26,8 +26,6 @@ export class EditorStage implements INodeEditor {
     public nodeLayer = new Konva.Layer();
     public connectionLayer = new Konva.Layer();
     public testLayer = new Konva.Layer();
-    public lockLayer = new Konva.Layer({
-    });
     // code state
     public state: EditorStateWrapper = new EditorStateWrapper();
 
@@ -74,7 +72,6 @@ export class EditorStage implements INodeEditor {
         this.stage.add(this.testLayer);
         this.stage.add(this.nodeLayer);
         this.stage.add(this.connectionLayer);
-        // this.stage.add(this.lockLayer);
         this.stage.on('dragend', (e) => {
         });
         this.nodeLayer.add(this.contextMenu);
@@ -88,48 +85,30 @@ export class EditorStage implements INodeEditor {
             else console.log("Initializing new document...");
         };
     }
-    //#region State Functions
-    public setState(jsonState: object) {
-        this.state = new EditorState();
-        // @ts-ignore
-        this.state = Utils.deserializeRecursive(this.state, jsonState);
-        this.nodeLayer.destroyChildren();
-        for (const id in this.state.codeNodes) {
-            this.createNode(this.state.codeNodes[id], parseInt(id));
+    destroyNode(id: number): void;
+    destroyNode(signature: NodeSignature): void;
+    destroyNode(arg: number | NodeSignature): void{
+        if(typeof arg == "number"){
+            this.state.destroyCodeNode(arg);
+        }else{
+            this.state.destroyCodeNode(arg.id);
         }
     }
-    public getState() {
-        return JSON.stringify(this.state);
-    }
+    //#region State Functions
+    public setState(jsonState: object) {
+        this.state = new EditorStateWrapper(jsonState);
 
-    public updateNodeState(nodeGroup: Konva.Group) {
-        const nodeid = nodeGroup.id().split("-")[1];
-        var signature = this.state.codeNodes[nodeid];
+        this.nodeLayer.destroyChildren();
 
-        // update position
-        signature.x = nodeGroup.x();
-        signature.y = nodeGroup.y();
-
-        // update connections
-
-
-        this.state.codeNodes[nodeid] = signature;
-        VSCShell.syncData(this.getState());
+        this.state.constructCodeNodes(this.nodeFactory, this);
     }
     //#endregion
     //#region INode API
     public newNode(signature: NodeSignature): void {
-        var highestIndex = parseInt(Object.keys(this.state.codeNodes)[Object.keys(this.state.codeNodes).length - 1]);
-        var node = this.createNode(signature, highestIndex);
-        this.state.codeNodes[node.numbericId] = signature;
-        VSCShell.syncData(this.getState());
+        var highestIndex = this.state.getHighestCodeIndex();
+        var node = this.nodeFactory.createNode(signature, this);
+        this.state.setCodeNode(node.numbericId, signature);
     }
-
-    private createNode(signature: NodeSignature, id: number): NENode {
-        var node = this.nodeFactory.createNode(signature, id, this);
-        return node[0];
-    }
-
 
     public getMousePosition(): Vector2d {
         var vect = this.stage.getPointerPosition()!;
