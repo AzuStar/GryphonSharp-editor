@@ -65,8 +65,8 @@ NE_STAGE.stage.on('wheel', (e) => {
 });
 // Safer & easier to implement custom contexmenu
 NE_STAGE.stage.on('contextmenu', (e) => {
-    e.evt.preventDefault();
-    NE_STAGE.contextMenu.visible(true);
+    e.evt.preventDefault();// vsc doesnt natively support context in custom editors
+    // NE_STAGE.contextMenu.visible(true); 
 });
 NE_STAGE.stage.on('mousedown', (e) => {
     stageLeftButton = e.evt.button == 0;

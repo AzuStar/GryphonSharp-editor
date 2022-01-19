@@ -1,16 +1,15 @@
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
-import { NodeSignature } from "./rawEditorState";
+import { CodeSignature } from "./rawEditorState";
 
 export interface INodeEditor {
 
     /**
      * Create a new node from a given signature.
      */
-    newNode(signature: NodeSignature): void;
+    newNode(signature: CodeSignature): void;
 
     destroyNode(id: number): void;
-    destroyNode(signature: NodeSignature): void;
 
     /**
      * Retrieves mouse position relative to stage.

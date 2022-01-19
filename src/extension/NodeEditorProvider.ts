@@ -12,6 +12,7 @@ class CommunicationStrcut {
 export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
 
     public context: vscode.ExtensionContext;
+    public static currentWebViewPanel: vscode.WebviewPanel | undefined;
 
     private static getNonce() {
         let text = '';
@@ -49,13 +50,14 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
             ]
         };
 
-        webviewPanel.webview.html = this.GenerateWebview(webviewPanel.webview, this.context);
-
-
-
+        webviewPanel.onDidChangeViewState((state) => {
+            if (state)
+                NodeEditorProvider.currentWebViewPanel = webviewPanel;
+            else if (NodeEditorProvider.currentWebViewPanel == webviewPanel) NodeEditorProvider.currentWebViewPanel = undefined;
+        });
 
         // communication
-        function messageHandler(message: CommunicationStrcut) {
+        function messageHandler(message: CommunicationStrcut): any {
             switch (message.command) {
                 case 'vsc-ready':
                     syncDocument(document);
@@ -67,6 +69,34 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
                         message.data!); // change this to replace parts not whole thing
                     vscode.workspace.applyEdit(edit);
                     return;
+                case 'vsc-pvalueChange':
+                    vscode.window.showQuickPick(["Boolean", "String", "Number"], {
+                        title: "Pick Primitive Type",
+                    }).then((e) => {
+                        switch (e) {
+                            case "Boolean":
+                                vscode.window.showQuickPick(["True", "False"], {
+                                    title: "Pick Boolean Value"
+                                }).then((e) => { pvalueChanged(e, parseInt(message.data!)); });
+                                break;
+                            case "String":
+                                vscode.window.showInputBox({
+                                    title: "Enter String Value",
+                                }).then((e) => { pvalueChanged(e, parseInt(message.data!)); });
+                                break;
+                            case "Number":
+                                vscode.window.showInputBox({
+                                    title: "Enter Numeric Value",
+                                    validateInput: (e) => {
+                                        // vscode.window.showErrorMessage(``);
+                                        return e.match(new RegExp("[+-]?[0-9]*\.?[0-9]+f?")) == null ? "Not a valid number!" : null;
+                                    }
+                                }).then((e) => { pvalueChanged(e != null ? parseFloat(e) : e, parseInt(message.data!)); });
+                                break;
+                        }
+
+                    });
+                    break;
             }
         }
 
@@ -84,6 +114,16 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
             });
         }
 
+        function pvalueChanged(value: string | undefined | number, id: number) {
+            var text = JSON.parse(document.getText());
+            text.dataNodes[id].value = value == undefined ? "" : value;
+            const edit = new vscode.WorkspaceEdit();
+            edit.replace(document.uri,
+                new vscode.Range(0, 0, document.lineCount, 0),
+                JSON.stringify(text)); // change this to replace parts not whole thing
+            vscode.workspace.applyEdit(edit);
+        }
+
         // function loadDocument(text: vscode.TextDocument) {
         //     sendMessage({
         //         command: 'editor-load',
@@ -92,8 +132,8 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
         // }
 
         const messageListener = webviewPanel.webview.onDidReceiveMessage(message => {
-            messageHandler(message);
-        }, undefined, this.context.subscriptions);
+            return messageHandler(message);
+        });
 
 
         const syncSaveChangesSubscription = vscode.workspace.onDidSaveTextDocument(e => {
@@ -113,8 +153,11 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
             syncSaveChangesSubscription.dispose();
             syncWorkbenchChangesSubscription.dispose();
             messageListener.dispose();
+
         });
 
+
+        webviewPanel.webview.html = this.GenerateWebview(webviewPanel.webview, this.context);
     }
 
     scriptsPath: string;
@@ -124,6 +167,7 @@ export class NodeEditorProvider implements vscode.CustomTextEditorProvider {
     // debug will always recompile the page
     // release will always have precompiled webview
     GenerateWebview(webview: vscode.Webview, context: vscode.ExtensionContext): string {
+
         var css: string[] = [];
         const nonce = NodeEditorProvider.getNonce();
 
