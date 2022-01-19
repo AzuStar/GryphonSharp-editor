@@ -8,6 +8,7 @@
 		"sourceMap": false,
 		"suppressImplicitAnyIndexErrors": true,
 		"alwaysStrict": true,
+		"experimentalDecorators": true
 	},
 	"include": [
 		"**/*.ts"
