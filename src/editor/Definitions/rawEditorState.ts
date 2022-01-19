@@ -1,3 +1,5 @@
+import { JSONData, JsonIgnore } from "../jsonData";
+
 export enum CodeNodeType {
     executionEnter = 0,
     invokeInstanceCall = 1,
@@ -8,7 +10,9 @@ export enum CodeNodeType {
     branch = 6,
     executionExit = 100,
 }
-export class NodeSignature {
+export class NodeSignature extends JSONData {
+    @JsonIgnore
+    id!: number;
     x!: number;
     y!: number;
     type!: CodeNodeType;
@@ -21,20 +25,22 @@ export class NodeSignature {
     inputs?: ConnectorSignature[];
     outputs?: ConnectorSignature[];
 }
-export class ConnectorSignature {
+export class ConnectorSignature extends JSONData {
     name!: string;
     dataType!: string;
-
+    dataReference!: number;
 }
-export class DataSignature {
+export class DataSignature extends JSONData {
+    @JsonIgnore
+    id!: number;
     type!: number;
     value!: string | number | boolean;
 }
-export class EditorSchema {
+export class EditorSchema extends JSONData {
+    ver!:number;
 }
-export class EditorState {
-    schema: EditorSchema = {
-    };
+export class EditorState extends JSONData {
+    schema: EditorSchema = new EditorSchema();
     codeNodes: { [id: string]: NodeSignature; } = {};
     dataNodes: { [id: string]: DataSignature } = {};
 
