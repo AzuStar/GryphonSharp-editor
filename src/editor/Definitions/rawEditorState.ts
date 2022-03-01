@@ -30,7 +30,7 @@ export class ConnectorSignature extends JSONData {
 }
 export class DataSignature extends JSONData {
     type!: number;
-    value!: string | number | boolean;
+    value?: string | number | boolean;
 }
 export class EditorSchema extends JSONData {
     ver!:number;
